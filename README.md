@@ -1,22 +1,20 @@
-# The Web, in Motion
+# ওয়েবের ইতিহাস — একটি ভিজ্যুয়াল যাত্রা
 
-A cinematic, interactive slide deck tracing the history of the World Wide Web—from the Internet's foundations and Tim Berners-Lee's 1989 proposal to the open questions shaping its future.
+React + Vite-এ তৈরি ১৬:৯ বাংলা স্লাইড ডেক। Remotion-এর animated film layer, Three.js-এর নেটওয়ার্ক গ্লোব, Canvas-এ আঁকা সময়রেখা এবং GSAP-এর slide transitions ব্যবহার করে।
 
-## Run locally
+## চালান
 
-Open `index.html` directly, or serve the folder with any static HTTP server, for example:
-
-```sh
-python3 -m http.server 4173
+```bash
+npm install
+npm run dev
 ```
 
-Then visit `http://localhost:4173`.
+## নিয়ন্ত্রণ
 
-## Explore
+- বাম/ডান অ্যারো, স্পেস, অন-স্ক্রিন বোতাম, অধ্যায় তালিকা অথবা টাচ-সোয়াইপে স্লাইড বদলান।
+- `F` পূর্ণপর্দা, `G` অধ্যায়, `?` শর্টকাট তালিকা, `Home`/`End` প্রথম/শেষ স্লাইড।
+- PDF বোতামে সব স্লাইড একসঙ্গে ১৬:৯ পৃষ্ঠায় ডাউনলোড হয়।
 
-- Use the arrow keys, on-screen arrows, chapter markers, or swipe to move between slides.
-- Open **Chapters** (or press `G`) to jump to a section.
-- Press `F` for fullscreen and `?` for the shortcut guide.
-- Explore the early-web timeline, trace a social post, and switch the responsive preview between desktop, tablet, and phone.
+## তথ্যসূত্র
 
-The deck is built with plain HTML, CSS, and JavaScript; it has no external asset or package dependencies. Motion is reduced automatically when the system's reduced-motion preference is enabled.
+CERN, [A short history of the Web](https://home.cern/science/computing/the-birth-of-the-web/short-history-web/)
