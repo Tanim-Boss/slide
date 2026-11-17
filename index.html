@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#090b10" />
+    <meta name="description" content="An interactive, cinematic field guide to the history of the web, from CERN to the present day." />
+    <title>The Web, in Motion — An Interactive History</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body data-direction="forward">
+    <div class="atmosphere" aria-hidden="true">
+      <div class="atmosphere-glow glow-a"></div>
+      <div class="atmosphere-glow glow-b"></div>
+      <div class="star-field"></div>
+      <div class="film-grain"></div>
+    </div>
+
+    <div class="presentation-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#slide-0" aria-label="The Web, in Motion — return to the beginning">
+          <span class="wordmark-symbol" aria-hidden="true">w<span>.</span></span>
+          <span class="wordmark-name">FIELD NOTES <i>/ 01</i></span>
+        </a>
+        <div class="top-context"><span>AN INTERACTIVE HISTORY</span><i></i><span>1989 — NOW</span></div>
+        <div class="top-actions">
+          <button class="chrome-button chapters-trigger" id="chaptersButton" type="button" aria-haspopup="dialog" aria-controls="chapterDialog">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" /></svg>
+            <span>CHAPTERS</span>
+          </button>
+          <button class="icon-button" id="helpButton" type="button" aria-label="Show keyboard shortcuts" title="Keyboard shortcuts">?</button>
+          <button class="icon-button fullscreen-button" id="fullscreenButton" type="button" aria-label="Enter fullscreen" title="Fullscreen">
+            <svg class="fullscreen-enter" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M3 13v4h4M17 13v4h-4" /></svg>
+            <svg class="fullscreen-exit" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3v4H3M13 3v4h4M3 13h4v4M17 13h-4v4" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="top-progress" aria-hidden="true"><span id="progressFill"></span></div>
+
+      <main class="deck" id="presentation" aria-label="The Web, in Motion presentation">
+        <!-- 00 — Opening frame -->
+        <section class="slide cover-slide is-active" id="slide-0" data-title="A history of the web" data-short="OPENING FRAME" data-date="1989 — NOW" aria-label="A history of the web" aria-hidden="false">
+          <div class="slide-content cover-layout">
+            <div class="cover-copy">
+              <p class="eyebrow reveal" style="--delay: 80ms"><span class="eyebrow-rule"></span> A CONNECTED WORLD, ONE LINK AT A TIME</p>
+              <h1 class="cover-title reveal" style="--delay: 180ms">A history<br />of the <em>web.</em></h1>
+              <p class="cover-deck reveal" style="--delay: 300ms">From a proposal at CERN to the place where we work, learn, play, and find one another.</p>
+              <div class="cover-actions reveal" style="--delay: 430ms">
+                <button class="primary-button" id="beginButton" type="button">
+                  <span>Begin the story</span>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M10 4l6 6-6 6" /></svg>
+                </button>
+                <span class="runtime-note"><b>07</b> CHAPTERS <i></i> ABOUT 8 MIN</span>
+              </div>
+              <p class="cover-footnote reveal" style="--delay: 540ms"><span class="live-dot"></span> BEST EXPERIENCED FULL SCREEN <span class="footnote-separator">·</span> SOUND OFF, IMAGINATION ON</p>
+            </div>
+
+            <div class="cover-art" aria-hidden="true">
+              <div class="cover-orbit-label orbit-label-top">A WORLD OF<br />CONNECTED IDEAS</div>
+              <div class="orb-parallax" id="coverParallax">
+                <div class="web-orb">
+                  <div class="orb-halo halo-one"></div>
+                  <div class="orb-halo halo-two"></div>
+                  <svg class="orb-diagram" viewBox="0 0 720 720" role="presentation">
+                    <defs>
+                      <linearGradient id="orbStroke" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#83c8ff" stop-opacity=".95" />
+                        <stop offset=".52" stop-color="#727aff" stop-opacity=".78" />
+                        <stop offset="1" stop-color="#ffb68b" stop-opacity=".78" />
+                      </linearGradient>
+                      <radialGradient id="orbFill" cx="38%" cy="33%" r="72%">
+                        <stop offset="0" stop-color="#5167b6" stop-opacity=".2" />
+                        <stop offset=".58" stop-color="#263267" stop-opacity=".13" />
+                        <stop offset="1" stop-color="#10131d" stop-opacity=".05" />
+                      </radialGradient>
+                      <filter id="orbGlow" x="-80%" y="-80%" width="260%" height="260%">
+                        <feGaussianBlur stdDeviation="5" result="blur" />
+                        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                      </filter>
+                    </defs>
+                    <circle class="orb-shell" cx="360" cy="360" r="271" fill="url(#orbFill)" />
+                    <circle class="orb-ring ring-a" cx="360" cy="360" r="271" />
+                    <ellipse class="orb-ring ring-b" cx="360" cy="360" rx="271" ry="111" />
+                    <ellipse class="orb-ring ring-c" cx="360" cy="360" rx="116" ry="271" />
+                    <ellipse class="orb-ring ring-d" cx="360" cy="360" rx="219" ry="271" transform="rotate(48 360 360)" />
+                    <path class="orb-path path-a" d="M115 421 C205 344 258 278 364 294 S518 387 622 265" />
+                    <path class="orb-path path-b" d="M150 202 C236 301 305 408 392 422 S513 391 587 511" />
+                    <path class="orb-path path-c" d="M132 488 C244 521 315 482 369 360 S492 195 584 221" />
+                    <path class="orb-path path-d" d="M216 104 C226 234 315 270 414 337 S493 480 504 606" />
+                    <g class="orb-nodes" filter="url(#orbGlow)">
+                      <circle cx="115" cy="421" r="5" /><circle cx="364" cy="294" r="6" /><circle cx="622" cy="265" r="4" />
+                      <circle cx="150" cy="202" r="4" /><circle cx="392" cy="422" r="5" /><circle cx="587" cy="511" r="4" />
+                      <circle cx="132" cy="488" r="4" /><circle cx="369" cy="360" r="7" /><circle cx="584" cy="221" r="5" />
+                      <circle cx="216" cy="104" r="4" /><circle cx="414" cy="337" r="4" /><circle cx="504" cy="606" r="5" />
+                    </g>
+                  </svg>
+                  <div class="orb-center"><span>OPEN NETWORK</span><strong>web</strong><i></i></div>
+                </div>
+              </div>
+              <div class="cover-orbit-label orbit-label-bottom"><span class="orbit-cross">+</span> NO SINGLE CENTER<br />EVERYTHING CONNECTED</div>
+              <div class="orbit-coordinate">51° 32′ N&nbsp; / &nbsp;00° 07′ W<br /><span>CERN → EVERYWHERE</span></div>
+            </div>
+
+            <div class="cover-edge-note" aria-hidden="true"><span>SCROLL THROUGH TIME</span><b>01 / 07</b></div>
+          </div>
+        </section>
+
+        <!-- 01 — Internet vs Web -->
+        <section class="slide" id="slide-1" data-title="The network was already here" data-short="THE FOUNDATION" data-date="1969 — 1989" aria-label="The Internet was already here" aria-hidden="true" inert>
+          <div class="slide-content split-layout foundation-layout">
+            <div class="story-column">
+              <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 01 &nbsp; / &nbsp; THE FOUNDATION <span class="eyebrow-date">1969 — 1989</span></p>
+              <h2 class="display-title reveal" style="--delay: 100ms">The Internet<br />connected <em>machines.</em></h2>
+              <p class="story-lede reveal" style="--delay: 210ms">The Web would connect what was inside them: documents, images, and ideas that could point to one another.</p>
+              <div class="definition-note reveal" style="--delay: 330ms">
+                <span class="definition-icon" aria-hidden="true">↗</span>
+                <p><b>Useful distinction</b><br />The Web is a service that runs on the Internet—not another name for the Internet.</p>
+              </div>
+              <p class="micro-caption reveal" style="--delay: 420ms"><span>1969</span> ARPANET sends its first message. <span>1989</span> A new layer is imagined at CERN.</p>
+            </div>
+
+            <div class="foundation-visual reveal" style="--delay: 180ms">
+              <div class="visual-heading"><span>FROM CONNECTION</span><i></i><span>TO CONTEXT</span></div>
+              <div class="two-worlds">
+                <div class="world-panel network-panel">
+                  <div class="world-panel-label"><span class="status-light"></span> THE INTERNET <small>INFRASTRUCTURE</small></div>
+                  <svg class="network-graphic" viewBox="0 0 360 280" aria-hidden="true">
+                    <defs><linearGradient id="networkLine" x1="0" x2="1"><stop stop-color="#668aff" stop-opacity=".2" /><stop offset="1" stop-color="#92d7f6" stop-opacity=".9" /></linearGradient></defs>
+                    <g class="network-lines" fill="none" stroke="url(#networkLine)" stroke-width="1.2">
+                      <path d="M66 62 171 96 283 48M66 62 96 182 171 96M96 182 194 222 283 48M171 96 194 222 283 178M283 48 283 178M66 62 194 222" />
+                    </g>
+                    <g class="computer-nodes">
+                      <circle cx="66" cy="62" r="15" /><circle cx="171" cy="96" r="15" /><circle cx="283" cy="48" r="15" />
+                      <circle cx="96" cy="182" r="15" /><circle cx="194" cy="222" r="15" /><circle cx="283" cy="178" r="15" />
+                    </g>
+                    <g class="node-labels"><text x="50" y="67">01</text><text x="155" y="101">02</text><text x="267" y="53">03</text><text x="80" y="187">04</text><text x="178" y="227">05</text><text x="267" y="183">06</text></g>
+                    <circle class="network-pulse pulse-a" cx="66" cy="62" r="8" /><circle class="network-pulse pulse-b" cx="194" cy="222" r="8" />
+                  </svg>
+                  <div class="world-panel-foot"><span>COMPUTER</span><span class="foot-arrow">— — —</span><span>COMPUTER</span></div>
+                </div>
+                <div class="world-bridge" aria-hidden="true"><span>THE WEB</span><svg viewBox="0 0 42 20"><path d="M2 10h36M30 2l8 8-8 8" /></svg></div>
+                <div class="world-panel web-panel">
+                  <div class="world-panel-label"><span class="status-light status-warm"></span> THE WEB <small>LINKED INFORMATION</small></div>
+                  <div class="web-idea-map" aria-hidden="true">
+                    <div class="idea-line line-1"></div><div class="idea-line line-2"></div><div class="idea-line line-3"></div><div class="idea-line line-4"></div><div class="idea-line line-5"></div>
+                    <div class="idea-card idea-center"><span>DOC</span><b>World</b></div>
+                    <div class="idea-card idea-north"><span>DOC</span><b>People</b></div>
+                    <div class="idea-card idea-east"><span>IMG</span><b>Places</b></div>
+                    <div class="idea-card idea-south"><span>DOC</span><b>Ideas</b></div>
+                    <div class="idea-card idea-west"><span>LINK</span><b>More →</b></div>
+                  </div>
+                  <div class="world-panel-foot"><span>PAGE</span><span class="foot-arrow">↗ ↗ ↗</span><span>MEANING</span></div>
+                </div>
+              </div>
+              <div class="visual-caption"><span class="caption-marker"></span> THE WEB DOESN'T JUST MOVE DATA. IT GIVES IT LINKS.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 02 — CERN and the three building blocks -->
+        <section class="slide" id="slide-2" data-title="A universal library" data-short="THE INVENTION" data-date="1989 — 1993" aria-label="The invention of the World Wide Web" aria-hidden="true" inert>
+          <div class="slide-content invention-layout">
+            <div class="invention-heading">
+              <div class="story-column">
+                <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 02 &nbsp; / &nbsp; THE INVENTION <span class="eyebrow-date">1989 — 1993</span></p>
+                <h2 class="display-title reveal" style="--delay: 100ms">One proposal.<br /><em>Infinite links.</em></h2>
+                <p class="story-lede reveal" style="--delay: 210ms">At CERN, Tim Berners-Lee wanted researchers to share information across different computers. His answer was elegantly small.</p>
+              </div>
+              <div class="formula-stamp reveal" style="--delay: 280ms" aria-label="The web is made from addresses, transfer rules, and documents">
+                <span>THE WEB, REDUCED</span>
+                <b>Address <i>+</i> Transfer <i>+</i> Document</b>
+              </div>
+            </div>
+
+            <div class="invention-body">
+              <div class="protocol-stack reveal" style="--delay: 300ms" aria-label="The three building blocks of the web">
+                <article class="protocol-card protocol-url">
+                  <div class="protocol-symbol">↗</div>
+                  <div><span class="protocol-name">URL</span><h3>An address</h3><p>Where a resource lives.</p></div>
+                  <span class="protocol-index">01</span>
+                </article>
+                <article class="protocol-card protocol-http">
+                  <div class="protocol-symbol">⇄</div>
+                  <div><span class="protocol-name">HTTP</span><h3>A conversation</h3><p>How a browser asks for it.</p></div>
+                  <span class="protocol-index">02</span>
+                </article>
+                <article class="protocol-card protocol-html">
+                  <div class="protocol-symbol">&lt;/&gt;</div>
+                  <div><span class="protocol-name">HTML</span><h3>A document</h3><p>How information takes shape.</p></div>
+                  <span class="protocol-index">03</span>
+                </article>
+              </div>
+
+              <div class="timeline-panel reveal" style="--delay: 420ms">
+                <div class="panel-heading"><div><span class="section-index">CERN / 1989—93</span><h3>Click a moment in the making.</h3></div><span class="panel-live"><i></i> TIMELINE</span></div>
+                <div class="timeline-rail" role="tablist" aria-label="Early World Wide Web milestones">
+                  <button class="timeline-stop is-selected" type="button" role="tab" aria-selected="true" data-event="proposal"><span class="stop-dot"></span><span class="stop-year">1989</span><span class="stop-caption">Proposal</span></button>
+                  <button class="timeline-stop" type="button" role="tab" aria-selected="false" data-event="browser"><span class="stop-dot"></span><span class="stop-year">1990</span><span class="stop-caption">First browser</span></button>
+                  <button class="timeline-stop" type="button" role="tab" aria-selected="false" data-event="site"><span class="stop-dot"></span><span class="stop-year">1991</span><span class="stop-caption">First site</span></button>
+                  <button class="timeline-stop" type="button" role="tab" aria-selected="false" data-event="public"><span class="stop-dot"></span><span class="stop-year">1993</span><span class="stop-caption">Opened up</span></button>
+                </div>
+                <div class="timeline-detail" id="earlyTimelineDetail" role="tabpanel" aria-live="polite">
+                  <span class="timeline-detail-year" id="earlyTimelineYear">1989</span>
+                  <div><h4 id="earlyTimelineTitle">A proposal for a web of information</h4><p id="earlyTimelineCopy">Tim Berners-Lee submits his idea for a linked information system at CERN. The first version is modest; the ambition is universal.</p></div>
+                  <span class="timeline-detail-mark" aria-hidden="true">↗</span>
+                </div>
+                <p class="timeline-source-note">In 1993, CERN released the Web software into the public domain—helping it spread without a toll gate.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 03 — Browsers and the visual web -->
+        <section class="slide" id="slide-3" data-title="The web gets a window" data-short="THE BROWSER ERA" data-date="1993 — 2004" aria-label="The browser era, from pages to participation" aria-hidden="true" inert>
+          <div class="slide-content browser-layout">
+            <div class="browser-story">
+              <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 03 &nbsp; / &nbsp; THE BROWSER ERA <span class="eyebrow-date">1993 — 2004</span></p>
+              <h2 class="display-title reveal" style="--delay: 100ms">The page got<br />a <em>window.</em></h2>
+              <p class="story-lede reveal" style="--delay: 210ms">A new generation of browsers made the Web feel less like a research tool and more like a place to explore.</p>
+              <div class="browser-quote reveal" style="--delay: 320ms"><span>FROM</span><b>READING</b><i>→</i><b>DOING</b><span>TOGETHER</span></div>
+              <p class="micro-caption reveal" style="--delay: 400ms"><span>1993</span> Mosaic popularizes the graphical browser. <span>1995</span> JavaScript brings pages to life.</p>
+            </div>
+
+            <div class="browser-scene reveal" style="--delay: 150ms">
+              <div class="scene-float-label float-label-a"><span class="float-label-dot"></span> THE EARLY WEB, REIMAGINED</div>
+              <div class="browser-window window-back" aria-hidden="true">
+                <div class="browser-topline"><i></i><i></i><i></i><span></span></div>
+                <div class="browser-back-content"><span>HTML</span><span>LINK</span><span>IMAGE</span><span>TEXT</span></div>
+              </div>
+              <div class="browser-window window-front" aria-label="Illustration of an early graphical web browser">
+                <div class="browser-topline"><i></i><i></i><i></i><span>http://somewhere.net/</span></div>
+                <div class="browser-page">
+                  <div class="browser-page-top"><span class="fake-logo">Mosaic<span>®</span></span><span class="fake-page-count">01 / 04</span></div>
+                  <div class="fake-image"><div class="fake-sun"></div><div class="fake-horizon"></div><span>IMAGE<br />ON THE PAGE</span></div>
+                  <h3>Welcome to somewhere.</h3>
+                  <p>Click a blue word. Find another world.</p>
+                  <div class="fake-links"><span>About this place ↗</span><span>Further reading ↗</span></div>
+                </div>
+                <div class="window-glint"></div>
+              </div>
+              <div class="browser-year-marker"><span>1993</span><i></i><b>THE WEB BECOMES VISIBLE</b></div>
+              <div class="browser-fact-card"><span class="fact-card-icon">↗</span><span>One click could take you somewhere completely new.</span></div>
+              <div class="scene-grid" aria-hidden="true"></div>
+            </div>
+
+            <div class="era-ribbon reveal" style="--delay: 480ms" aria-label="Milestones in the browser era">
+              <div class="era-ribbon-heading"><span>THE WEB LEARNS NEW TRICKS</span><span>FOUR SMALL REVOLUTIONS</span></div>
+              <div class="era-milestones">
+                <div class="era-milestone"><span>1993</span><b>Mosaic</b><small>Images, in the page</small></div>
+                <div class="era-milestone"><span>1995</span><b>JavaScript</b><small>Pages that respond</small></div>
+                <div class="era-milestone"><span>1998</span><b>Google</b><small>Search at a new scale</small></div>
+                <div class="era-milestone"><span>2001</span><b>Wikipedia</b><small>Knowledge, collaboratively</small></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 04 — Web 2.0 and participation -->
+        <section class="slide" id="slide-4" data-title="Everybody gets a publish button" data-short="THE SOCIAL WEB" data-date="2004 — 2010" aria-label="The rise of the social, participatory web" aria-hidden="true" inert>
+          <div class="slide-content split-layout social-layout">
+            <div class="story-column">
+              <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 04 &nbsp; / &nbsp; THE SOCIAL WEB <span class="eyebrow-date">2004 — 2010</span></p>
+              <h2 class="display-title reveal" style="--delay: 100ms">We all got<br />the <em>write</em><br />button.</h2>
+              <p class="story-lede reveal" style="--delay: 210ms">Blogs, photo streams, video, and social networks turned the audience into a cast of millions. The Web became something people made together.</p>
+              <div class="social-facts reveal" style="--delay: 320ms">
+                <div><span>2004</span><b>“Web 2.0” catches on</b></div>
+                <div><span>2005</span><b>YouTube launches</b></div>
+                <div><span>2007</span><b>The iPhone puts a capable browser in a pocket</b></div>
+              </div>
+              <button class="text-button trace-trigger reveal" id="traceButton" type="button" style="--delay: 430ms">
+                <span class="trace-icon" aria-hidden="true">◉</span><span>Trace a post across the web</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M10 4l6 6-6 6" /></svg>
+              </button>
+            </div>
+
+            <div class="creator-stage reveal" style="--delay: 150ms" id="creatorStage">
+              <div class="creator-stage-heading"><span>ONE PERSON</span><i></i><span>MANY CONNECTIONS</span></div>
+              <div class="creator-network">
+                <svg class="creator-connections" viewBox="0 0 620 540" aria-hidden="true">
+                  <path class="creator-line line-creator-a" d="M310 272 142 124" /><path class="creator-line line-creator-b" d="M310 272 470 112" />
+                  <path class="creator-line line-creator-c" d="M310 272 510 282" /><path class="creator-line line-creator-d" d="M310 272 424 438" />
+                  <path class="creator-line line-creator-e" d="M310 272 166 427" /><path class="creator-line line-creator-f" d="M310 272 93 280" />
+                  <path class="creator-line line-creator-g" d="M142 124 470 112" /><path class="creator-line line-creator-h" d="M166 427 424 438" />
+                </svg>
+                <div class="creator-core"><span>YOU</span><b>make<br />something</b><i>✳</i></div>
+                <div class="creator-card creator-blog"><span class="creator-card-icon">Aa</span><b>YOUR BLOG</b><small>an idea, published</small></div>
+                <div class="creator-card creator-video"><span class="creator-card-icon play-mark">▶</span><b>YOUR VIDEO</b><small>a story, shared</small></div>
+                <div class="creator-card creator-photo"><span class="creator-card-icon photo-mark">▧</span><b>YOUR PHOTO</b><small>a moment, remembered</small></div>
+                <div class="creator-card creator-profile"><span class="creator-card-icon avatar-mark">●</span><b>YOUR PROFILE</b><small>a person, online</small></div>
+                <div class="creator-card creator-comment"><span class="creator-card-icon comment-mark">•••</span><b>YOUR RESPONSE</b><small>a conversation, started</small></div>
+                <div class="creator-card creator-remix"><span class="creator-card-icon remix-mark">⤨</span><b>YOUR REMIX</b><small>an idea, made new</small></div>
+                <div class="trace-packet packet-a"></div><div class="trace-packet packet-b"></div><div class="trace-packet packet-c"></div>
+              </div>
+              <div class="creator-stage-foot"><span id="traceCaption" aria-live="polite">WRITE <i>→</i> PUBLISH <i>→</i> SHARE <i>→</i> REMIX</span><span class="creator-foot-status"><i></i> <b>THE NETWORK IS LISTENING</b></span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 05 — Mobile and platform web -->
+        <section class="slide" id="slide-5" data-title="The web fits every screen" data-short="THE EVERYWHERE WEB" data-date="2010 — 2020" aria-label="The web becomes mobile, responsive, and platform-like" aria-hidden="true" inert>
+          <div class="slide-content split-layout everywhere-layout">
+            <div class="story-column">
+              <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 05 &nbsp; / &nbsp; THE EVERYWHERE WEB <span class="eyebrow-date">2010 — 2020</span></p>
+              <h2 class="display-title reveal" style="--delay: 100ms">One Web.<br /><em>Every screen.</em></h2>
+              <p class="story-lede reveal" style="--delay: 210ms">The browser moved into our pockets. Flexible layouts, cloud services, and richer standards made the Web feel less like a destination—and more like a layer beneath daily life.</p>
+              <div class="standards-strip reveal" style="--delay: 330ms">
+                <div><span>2010</span><b>Responsive design</b><small>One page, many shapes</small></div>
+                <div><span>2014</span><b>HTML5</b><small>Richer native building blocks</small></div>
+                <div><span>2015</span><b>HTTP/2</b><small>A faster conversation</small></div>
+              </div>
+              <p class="micro-caption reveal" style="--delay: 420ms">The same address could now meet you at a desk, on a sofa, or on the move.</p>
+            </div>
+
+            <div class="device-lab reveal" style="--delay: 160ms">
+              <div class="device-lab-heading"><div><span class="section-index">RESPONSIVE BY DESIGN</span><h3>One page. Your choice.</h3></div><span class="device-lab-status"><i></i> LIVE PREVIEW</span></div>
+              <div class="device-switcher" role="group" aria-label="Choose a device preview">
+                <button class="device-choice" type="button" data-device-choice="desktop" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="11" rx="1.5"/><path d="M7 17h6M10 14v3"/></svg><span>DESKTOP</span></button>
+                <button class="device-choice" type="button" data-device-choice="tablet" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="1.7" width="12" height="16.6" rx="2"/><path d="M9 15.8h2"/></svg><span>TABLET</span></button>
+                <button class="device-choice" type="button" data-device-choice="phone" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5.5" y="1.5" width="9" height="17" rx="2"/><path d="M9 15.8h2"/></svg><span>PHONE</span></button>
+              </div>
+              <div class="device-stage" id="deviceStage" data-device="desktop">
+                <div class="device-frame">
+                  <div class="device-camera"></div>
+                  <div class="responsive-page">
+                    <div class="mini-site-nav"><span class="mini-brand">FIELD<span>WORK</span></span><div class="mini-nav-links"><i>STORIES</i><i>PLACES</i><i>ABOUT</i></div><span class="mini-menu">☰</span></div>
+                    <div class="mini-site-body">
+                      <div class="mini-copy"><span class="mini-kicker">A SMALL GUIDE TO BIG IDEAS</span><h4>Take the<br /><em>long way.</em></h4><p>Good things happen when the world opens up.</p><span class="mini-link">FOLLOW THE STORY&nbsp; ↗</span></div>
+                      <div class="mini-picture"><div class="mini-picture-sun"></div><div class="mini-picture-moon"></div><div class="mini-picture-land"></div><div class="mini-picture-lines"></div><span>OUT THERE / 01</span></div>
+                    </div>
+                    <div class="mini-site-footer"><span>FIELDWORK STUDIO</span><span>DESIGNED TO TRAVEL</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="device-lab-foot"><span id="deviceCaption" aria-live="polite">WIDE VIEW / MULTI-COLUMN</span><span>THE CONTENT STAYS. THE LAYOUT ADAPTS.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 06 — The present and future -->
+        <section class="slide future-slide" id="slide-6" data-title="The next chapter is ours" data-short="THE OPEN QUESTION" data-date="2020s — ?" aria-label="The future of the web is still being written" aria-hidden="true" inert>
+          <div class="slide-content future-layout">
+            <div class="future-topline">
+              <p class="eyebrow reveal"><span class="eyebrow-rule"></span> 06 &nbsp; / &nbsp; THE OPEN QUESTION <span class="eyebrow-date">2020s — ?</span></p>
+              <span class="future-coordinates reveal" style="--delay: 100ms">CHAPTER 07 IS STILL IN PROGRESS <i></i></span>
+            </div>
+            <div class="future-main">
+              <div class="future-copy">
+                <h2 class="future-title reveal" style="--delay: 120ms">The next chapter<br />is <em>ours.</em></h2>
+                <p class="future-lede reveal" style="--delay: 230ms">AI is changing how we find and make things. Questions of privacy, access, and who holds power are changing what the Web can be.</p>
+                <div class="future-invitation reveal" style="--delay: 350ms"><span class="invitation-rule"></span><p>Its history isn't finished.<br /><b>Choose what you want it to become.</b></p></div>
+              </div>
+              <div class="future-constellation reveal" style="--delay: 250ms" aria-hidden="true">
+                <div class="constellation-glow"></div>
+                <svg viewBox="0 0 620 520">
+                  <defs><linearGradient id="futureLine" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#80d4e8" stop-opacity=".15"/><stop offset=".54" stop-color="#829cff" stop-opacity=".9"/><stop offset="1" stop-color="#ffc4a0" stop-opacity=".3"/></linearGradient></defs>
+                  <g class="constellation-lines" fill="none" stroke="url(#futureLine)" stroke-width="1.2">
+                    <path d="M310 250 98 126 215 62 310 250 498 104 520 243 310 250 450 410 314 480 310 250 151 410 80 269 310 250" />
+                    <path d="m98 126 180 62 220-84m-418 165 170-81 200 55M151 410l135-222 164 222m-352-141 214 53 208-26" stroke-dasharray="3 7" />
+                  </g>
+                  <g class="constellation-stars">
+                    <circle cx="98" cy="126" r="5"/><circle cx="215" cy="62" r="3"/><circle cx="498" cy="104" r="5"/><circle cx="520" cy="243" r="3"/>
+                    <circle cx="450" cy="410" r="5"/><circle cx="314" cy="480" r="4"/><circle cx="151" cy="410" r="3"/><circle cx="80" cy="269" r="5"/>
+                    <circle class="star-bright" cx="310" cy="250" r="10"/><circle class="star-ring" cx="310" cy="250" r="26"/>
+                  </g>
+                </svg>
+                <span class="constellation-tag tag-open">OPEN STANDARDS</span><span class="constellation-tag tag-access">ACCESS FOR ALL</span><span class="constellation-tag tag-choice">HUMAN CHOICE</span>
+                <div class="constellation-center"><i></i><span>STILL<br />CONNECTED</span></div>
+              </div>
+            </div>
+
+            <div class="future-bottom reveal" style="--delay: 430ms">
+              <div class="future-timeline" aria-label="A timeline of the web">
+                <span>1989</span><i></i><span>1993</span><i></i><span>2004</span><i></i><span>2010</span><i></i><span>2020s</span><i class="timeline-question">?</i>
+              </div>
+              <div class="future-controls">
+                <button class="outline-button replay-button" id="replayButton" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 8a6 6 0 1 1 1 6M4 8V3m0 5h5" /></svg><span>Replay the story</span></button>
+                <span class="ending-note">A SHORT HISTORY.<br /><b>A LONG FUTURE.</b></span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="control-bar">
+        <div class="control-context"><span class="control-kicker">NOW WATCHING</span><span id="currentChapterLabel">OPENING FRAME</span></div>
+        <nav class="slide-navigation" aria-label="Slide navigation">
+          <button class="nav-arrow previous-arrow" id="previousButton" type="button" aria-label="Previous slide" disabled><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M18 11H4m7 7-7-7 7-7" /></svg></button>
+          <div class="chapter-markers" id="chapterMarkers">
+            <button class="chapter-marker is-current" type="button" data-goto="0" aria-label="Go to slide 1: Opening frame" aria-current="step"><span></span><i>01</i></button>
+            <button class="chapter-marker" type="button" data-goto="1" aria-label="Go to slide 2: The foundation"><span></span><i>02</i></button>
+            <button class="chapter-marker" type="button" data-goto="2" aria-label="Go to slide 3: The invention"><span></span><i>03</i></button>
+            <button class="chapter-marker" type="button" data-goto="3" aria-label="Go to slide 4: The browser era"><span></span><i>04</i></button>
+            <button class="chapter-marker" type="button" data-goto="4" aria-label="Go to slide 5: The social web"><span></span><i>05</i></button>
+            <button class="chapter-marker" type="button" data-goto="5" aria-label="Go to slide 6: The everywhere web"><span></span><i>06</i></button>
+            <button class="chapter-marker" type="button" data-goto="6" aria-label="Go to slide 7: The open question"><span></span><i>07</i></button>
+          </div>
+          <button class="nav-arrow next-arrow" id="nextButton" type="button" aria-label="Next slide"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M4 11h14m-7-7 7 7-7 7" /></svg></button>
+        </nav>
+        <div class="control-page"><span id="currentPage">01</span><i>/</i><span>07</span></div>
+      </footer>
+    </div>
+
+    <dialog class="modal chapter-dialog" id="chapterDialog" aria-labelledby="chapterDialogTitle">
+      <div class="modal-header">
+        <div><p class="eyebrow"><span class="eyebrow-rule"></span> A FIELD GUIDE THROUGH TIME</p><h2 id="chapterDialogTitle">Choose a chapter.</h2></div>
+        <button class="modal-close" type="button" data-close-dialog aria-label="Close chapter list">×</button>
+      </div>
+      <div class="overview-grid" id="overviewGrid"></div>
+      <div class="modal-foot"><span>7 CHAPTERS · ONE CONTINUOUS STORY</span><span>PRESS <kbd>ESC</kbd> TO CLOSE</span></div>
+    </dialog>
+
+    <dialog class="modal help-dialog" id="helpDialog" aria-labelledby="helpDialogTitle">
+      <div class="modal-header">
+        <div><p class="eyebrow"><span class="eyebrow-rule"></span> A FEW SHORTCUTS</p><h2 id="helpDialogTitle">Move through time.</h2></div>
+        <button class="modal-close" type="button" data-close-dialog aria-label="Close keyboard shortcuts">×</button>
+      </div>
+      <div class="shortcut-list">
+        <div><span>Previous / next slide</span><span class="key-pair"><kbd>←</kbd><kbd>→</kbd></span></div>
+        <div><span>Next slide</span><kbd>SPACE</kbd></div>
+        <div><span>Open chapter list</span><kbd>G</kbd></div>
+        <div><span>Fullscreen</span><kbd>F</kbd></div>
+        <div><span>Close any panel</span><kbd>ESC</kbd></div>
+      </div>
+      <div class="modal-foot"><span>MADE TO BE EXPLORED, NOT RUSHED.</span><span>PRESS <kbd>ESC</kbd> TO CLOSE</span></div>
+    </dialog>
+
+    <div class="screen-reader-status" id="screenReaderStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
