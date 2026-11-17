@@ -73,7 +73,7 @@ export const PosterCustomizer: React.FC<PosterCustomizerProps> = ({ poster, onCh
           </div>
           <div>
             <h3 className="font-bold text-sm text-white font-serif-bn">পোস্টার কাস্টমাইজেশন</h3>
-            <p className="text-[11px] text-slate-400">রং, লেখা ও অলঙ্করণ পরিবর্তন</p>
+            <p className="text-[11px] text-slate-400">রং, লেখা ও শেপ ডেকো পরিবর্তন</p>
           </div>
         </div>
         <button
@@ -118,7 +118,7 @@ export const PosterCustomizer: React.FC<PosterCustomizerProps> = ({ poster, onCh
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>অলঙ্করণ</span>
+          <span>শেপ ও ডেকো</span>
         </button>
       </div>
 
@@ -130,7 +130,7 @@ export const PosterCustomizer: React.FC<PosterCustomizerProps> = ({ poster, onCh
             {/* Color Themes */}
             <div>
               <label className="block text-xs font-bold text-amber-300 mb-2">
-                পোস্টার কালার থিম (Royal Themes)
+                পোস্টার কালার থিম (Modern Corporate)
               </label>
               <div className="space-y-2">
                 {Object.values(THEMES).map((theme) => {
@@ -315,21 +315,20 @@ export const PosterCustomizer: React.FC<PosterCustomizerProps> = ({ poster, onCh
           </>
         )}
 
-        {/* TAB 3: ORNAMENTS & TOGGLES */}
+        {/* TAB 3: SHAPES & DECORATIONS */}
         {activeTab === 'ornaments' && (
           <div className="space-y-3">
             <div className="text-xs text-slate-400 mb-3">
-              পোস্টারের ইসলামিক আর্ট ও আলঙ্কারিক উপাদানগুলো সক্রিয় বা নিষ্ক্রিয় করুন:
+              পোস্টারের আধুনিক শেপ ও ডেকোরেটিভ এলিমেন্টগুলো সক্রিয় বা নিষ্ক্রিয় করুন:
             </div>
 
             {[
-              { key: 'showBismillah', label: 'বিসমিল্লাহ আরবি ক্যালিগ্রাফি', sub: 'শীর্ষে ক্যালিগ্রাফি প্রদর্শন' },
-              { key: 'showRabbiZidni', label: 'রাব্বি যিদনী ইলমা ক্রেস্ট', sub: 'কুরআনের দোয়া ও অনুবাদ' },
-              { key: 'showFoilBorder', label: 'রয়েল গোল্ডেন ফয়েল বর্ডার', sub: 'চারপাশে সোনালী রাজকীয় ফ্রেম' },
-              { key: 'showCornerFiligrees', label: 'চার কোণার রাজকীয় নকশা', sub: 'আরবেস্ক কর্নার ফিলগ্রি' },
-              { key: 'showGeometricBackground', label: 'ইসলামিক জ্যামিতিক নকশা', sub: 'ব্যাকগ্রাউন্ডে গিরিহ স্টার প্যাটার্ন' },
-              { key: 'showGoldBadge', label: 'ভর্তি চলছে থ্রিডি ব্যাজ', sub: 'গোল্ডেন রোজেট সিলমোহর ফিতা' },
-              { key: 'showQrCode', label: 'স্মার্ট কিউআর কোড', sub: 'স্ক্যান করে তথ্য জানার ব্যবস্থা' },
+              { key: 'showHeaderShapes', label: 'লেয়ার্ড ডায়াগোনাল হেডার', sub: 'উপরে স্তরযুক্ত তির্যক রঙিন শেপ' },
+              { key: 'showDotPatterns', label: 'ডট গ্রিড ডেকোরেশন', sub: 'কর্পোরেট স্টাইল বিন্দু ক্লাস্টার' },
+              { key: 'showRibbonBand', label: 'অ্যাকসেন্ট রিবন ব্যান্ড', sub: 'মাঝখানের তির্যক-কাটা রঙিন ব্যানার' },
+              { key: 'showRingBadge', label: 'সার্কুলার রিং ব্যাজ', sub: 'গোল রিং-এর আসন সীমিত ব্যাজ' },
+              { key: 'showQrCode', label: 'স্মার্ট কিউআর কোড', sub: 'ফুটারে কিউআর কোড কার্ড' },
+              { key: 'showFooterShapes', label: 'ফুটার ওয়েজ শেপ', sub: 'ফুটারের তির্যক কাটা এজ ডিজাইন' },
             ].map((item) => {
               const checked = poster.ornaments[item.key as keyof PosterData['ornaments']];
               return (

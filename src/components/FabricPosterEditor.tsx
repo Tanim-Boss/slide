@@ -43,7 +43,7 @@ export const FabricPosterEditor: React.FC<FabricPosterEditorProps> = ({ poster }
     const canvas = new Canvas(canvasElRef.current, {
       width: 794,
       height: 1123,
-      backgroundColor: poster.themeId === 'ivory-cream' ? '#fdfbf7' : '#042f24',
+      backgroundColor: theme.primary,
       selection: true,
       preserveObjectStacking: true,
     });
@@ -84,10 +84,9 @@ export const FabricPosterEditor: React.FC<FabricPosterEditorProps> = ({ poster }
 
   const loadPosterElements = (canvas: Canvas) => {
     canvas.clear();
-    const isIvory = poster.themeId === 'ivory-cream';
-    const bgFill = isIvory ? '#f8f5ed' : '#03261d';
+    const bgFill = theme.primary;
     const primaryGold = theme.accentGold;
-    const textFill = isIvory ? '#064e3b' : '#ffffff';
+    const textFill = '#ffffff';
 
     // 1. Background Rectangle
     const bgRect = new Rect({
@@ -133,34 +132,10 @@ export const FabricPosterEditor: React.FC<FabricPosterEditorProps> = ({ poster }
     });
     canvas.add(innerBorder);
 
-    // 3. Arabic Bismillah Calligraphy
-    const bismillahText = new IText(poster.arabicHeader, {
-      left: 397,
-      top: 55,
-      originX: 'center',
-      fontFamily: 'Amiri, serif',
-      fontSize: 28,
-      fill: '#fde047',
-      fontWeight: 'bold',
-      shadow: new Shadow({ color: '#f59e0b', blur: 6, offsetX: 0, offsetY: 2 }),
-    });
-    canvas.add(bismillahText);
-
-    // 4. Rabbi Zidni Ilma Crest
-    const rabbiZidniText = new IText('رَبِّ زِدْنِي عِلْمًا — (হে প্রভু! আমার জ্ঞান বৃদ্ধি করে দিন)', {
-      left: 397,
-      top: 98,
-      originX: 'center',
-      fontFamily: 'Noto Serif Bengali, Amiri, serif',
-      fontSize: 16,
-      fill: '#fef08a',
-    });
-    canvas.add(rabbiZidniText);
-
-    // 5. Main Title: দারুননাজাত মাদ্রাসা
+    // 3. Main Title: দারুননাজাত মাদ্রাসা
     const titleText = new IText(poster.madrasahName, {
       left: 397,
-      top: 135,
+      top: 105,
       originX: 'center',
       fontFamily: 'Noto Serif Bengali, serif',
       fontSize: 54,
@@ -170,14 +145,14 @@ export const FabricPosterEditor: React.FC<FabricPosterEditorProps> = ({ poster }
     });
     canvas.add(titleText);
 
-    // 6. Subtitle
+    // 4. Subtitle
     const subtitleText = new IText(poster.subTitle, {
       left: 397,
-      top: 208,
+      top: 180,
       originX: 'center',
       fontFamily: 'Hind Siliguri, sans-serif',
       fontSize: 18,
-      fill: isIvory ? '#374151' : '#a7f3d0',
+      fill: '#e2e8f0',
       textAlign: 'center',
     });
     canvas.add(subtitleText);
@@ -240,7 +215,7 @@ export const FabricPosterEditor: React.FC<FabricPosterEditorProps> = ({ poster }
     canvas.add(dateText);
 
     // 9. Features Section Title
-    const featuresHeader = new IText(`⚜️ ${poster.featuresTitle} ⚜️`, {
+    const featuresHeader = new IText(`◆ ${poster.featuresTitle} ◆`, {
       left: 397,
       top: 395,
       originX: 'center',

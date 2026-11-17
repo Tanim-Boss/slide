@@ -94,7 +94,7 @@ export const PosterHeader: React.FC<PosterHeaderProps> = ({
               ? 'bg-amber-500 text-slate-950 shadow-md font-bold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
-          title="SVG.js ভেক্টর মেহরাব ও স্টার জেনারেটর"
+          title="SVG.js ভেক্টর শেপ জেনারেটর"
         >
           <Shapes className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">SVG.js ভেক্টর</span>
