@@ -1,0 +1,38 @@
+import { PosterData } from '../types/poster';
+
+export const DEFAULT_POSTER: PosterData = {
+  madrasahName: 'দারুননাজাত মাদ্রাসা',
+  arabicHeader: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+  arabicSubHeader: 'رَبِّ زِدْنِي عِلْمًا',
+  subTitle: 'ঐতিহ্যবাহী দ্বীনি বিদ্যাপীঠ • আধুনিক ও আদর্শ দ্বীনি শিক্ষার অনন্য সমন্বয়',
+  admissionTitle: 'ভর্তি চলছে',
+  admissionSession: 'শিক্ষাবর্ষ ২০২৬ - ২০২৭',
+  admissionDate: 'ভর্তি শুরুঃ ১ ডিসেম্বর ২০২৬',
+  featuresTitle: 'আমাদের বৈশিষ্ট্যসমূহঃ',
+  features: [
+    'কঠিন তদারকি করা হয়',
+    'আখলাকি মানুষ বানানো হয়',
+    'বেত্রাঘাত করা হয় না।',
+    'তিনবেলা ভালো মানের খানা প্রদান করা',
+    'আন্তর্জাতিক মানে শিক্ষা প্রদান',
+    'প্রশিক্ষণপ্রাপ্ত শিক্ষক প্যানেল',
+    'মাথায় নষ্ট মামা কাজ করবার',
+  ],
+  location: 'স্থানঃ দারুননাজাত মাদ্রাসার পাশেই, সারুলিয়া, ডেমরা ঢাকা',
+  phones: ['০১৭৭৬২৮৯৮০১', '০১৬৮৫৩৬০৯৮১'],
+  urgentNote: 'আসন সংখ্যা সীমিত! আজই যোগাযোগ করে আপনার সন্তানের ভর্তি নিশ্চিত করুন।',
+  customBadgeText: '১০০% মানসম্মত ও আদর্শ পরিবেশ',
+  themeId: 'royal-emerald',
+  layoutId: 'classic-mehrab',
+  aspectRatio: 'a4',
+  ornaments: {
+    showBismillah: true,
+    showRabbiZidni: true,
+    showIslamicArch: true,
+    showCornerFiligrees: true,
+    showGeometricBackground: true,
+    showGoldBadge: true,
+    showQrCode: true,
+    showFoilBorder: true,
+  },
+};
