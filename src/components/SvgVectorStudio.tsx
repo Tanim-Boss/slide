@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SVG } from '@svgdotjs/svg.js';
 import { PosterData } from '../types/poster';
+import { THEMES } from '../data/themes';
 import { generatePosterSvg } from '../utils/svgGenerator';
 import {
   Code,
   Copy,
   Download,
   Sliders,
-  Sparkles,
   Check,
-  Layers,
   Shapes,
 } from 'lucide-react';
 
@@ -20,15 +19,17 @@ interface SvgVectorStudioProps {
 export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Parametric Generator States
-  const [archApexY, setArchApexY] = useState<number>(60);
-  const [archStrokeWidth, setArchStrokeWidth] = useState<number>(3);
-  const [starPoints, setStarPoints] = useState<number>(8);
-  const [starSize, setStarSize] = useState<number>(60);
-  const [goldTone, setGoldTone] = useState<string>('#F59E0B');
+  // Parametric modern-shape generator states
+  const [diagSlope, setDiagSlope] = useState<number>(70); // diagonal cut slope (px drop)
+  const [layerGap, setLayerGap] = useState<number>(18); // gap between stacked layers
+  const [ringSize, setRingSize] = useState<number>(62); // ring badge radius
+  const [dotCols, setDotCols] = useState<number>(7); // dot grid density
+  const [accentTone, setAccentTone] = useState<string>('#F59E0B');
   const [showFullPosterSvg, setShowFullPosterSvg] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
   const [svgOutputCode, setSvgOutputCode] = useState<string>('');
+
+  const theme = THEMES[poster.themeId] || THEMES['royal-emerald'];
 
   // Re-generate SVG using SVG.js when parameters change
   useEffect(() => {
@@ -41,77 +42,80 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
       containerRef.current.innerHTML = rawSvg;
       setSvgOutputCode(rawSvg);
     } else {
-      // Parametric Vector Generator using SVG.js library
+      // Parametric corporate shape generator using SVG.js
       const draw = SVG().addTo(containerRef.current).size(600, 600).viewbox(0, 0, 600, 600);
 
-      // Background rect
-      draw.rect(600, 600).fill('#03261d').radius(12);
+      // Light page background
+      draw.rect(600, 600).fill(theme.pageBg).radius(12);
 
-      // Outer border
+      // Layered diagonal shape stack (accent → dark → primary)
+      const yR = 210 + diagSlope; // right-side height of the diagonal cut
       draw
-        .rect(560, 560)
-        .move(20, 20)
-        .fill('none')
-        .stroke({ color: goldTone, width: archStrokeWidth, linecap: 'round' })
-        .radius(10);
-
-      // Parametric Mehrab Arch Top
-      const archPath = `M 60 400 C 60 200, 180 ${archApexY + 40}, 300 ${archApexY} C 420 ${archApexY + 40}, 540 200, 540 400`;
-      draw.path(archPath).fill('none').stroke({ color: goldTone, width: archStrokeWidth + 1 });
-
-      // Secondary Cusped Arch
-      const cuspPath = `M 90 410 C 90 230, 190 ${archApexY + 70}, 300 ${archApexY + 25} C 410 ${archApexY + 70}, 510 230, 510 410`;
+        .polygon(`0,0 600,0 600,${yR + layerGap * 2} 0,${yR + 90 + layerGap * 2}`)
+        .fill(accentTone);
       draw
-        .path(cuspPath)
-        .fill('none')
-        .stroke({ color: '#FEF08A', width: 1.5, dasharray: '6,4' });
+        .polygon(`0,0 600,0 600,${yR + layerGap} 0,${yR + 90 + layerGap}`)
+        .fill(theme.primaryDark);
+      draw.polygon(`0,0 600,0 600,${yR} 0,${yR + 90}`).fill(theme.primary);
 
-      // Finial at apex
-      draw
-        .polygon(`300,${archApexY - 30} 305,${archApexY - 12} 320,${archApexY - 12} 308,${archApexY - 2} 313,${archApexY + 14} 300,${archApexY + 4} 287,${archApexY + 14} 292,${archApexY - 2} 280,${archApexY - 12} 295,${archApexY - 12}`)
-        .fill(goldTone);
-
-      // Islamic Star in center (Parametric points)
-      const cx = 300;
-      const cy = 280;
-      const rOuter = starSize;
-      const rInner = starSize * 0.45;
-      let starPointsStr = '';
-      const totalPts = starPoints * 2;
-      for (let i = 0; i < totalPts; i++) {
-        const r = i % 2 === 0 ? rOuter : rInner;
-        const angle = (i * Math.PI) / starPoints - Math.PI / 2;
-        const x = cx + r * Math.cos(angle);
-        const y = cy + r * Math.sin(angle);
-        starPointsStr += `${x.toFixed(1)},${y.toFixed(1)} `;
+      // Diagonal sheen lines on the primary panel
+      for (let i = 0; i < 3; i++) {
+        const x = 340 + i * 60;
+        draw
+          .line(x, 0, x + 130, yR - 60)
+          .stroke({ color: '#ffffff', width: 2, opacity: 0.06 });
       }
-      draw.polygon(starPointsStr.trim()).fill('none').stroke({ color: goldTone, width: 2.5 });
-      draw.circle(starSize * 0.8).center(cx, cy).fill('none').stroke({ color: '#FEF08A', width: 1, dasharray: '3,3' });
 
-      // Title & Text inside Vector
+      // Dot grid cluster, top-right
+      const dotGap = 20;
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < dotCols; c++) {
+          draw
+            .circle(5)
+            .fill(accentTone)
+            .move(600 - 36 - dotCols * dotGap + c * dotGap, 34 + r * dotGap);
+        }
+      }
+
+      // Ring badge, bottom-right
+      const rcx = 600 - 60 - ringSize;
+      const rcy = 600 - 60 - ringSize;
+      draw.circle(ringSize * 2).center(rcx, rcy).fill('none').stroke({ color: accentTone, width: 10 });
+      draw
+        .circle((ringSize - 16) * 2)
+        .center(rcx, rcy)
+        .fill(theme.primary);
+      draw
+        .text('সীমিত!')
+        .font({ family: 'Noto Serif Bengali, serif', size: 22, weight: 'bold', anchor: 'middle' })
+        .fill('#ffffff')
+        .center(rcx, rcy - 2);
+
+      // Angled accent ribbon band
+      draw.polygon(`0,470 600,470 566,516 0,516`).fill(accentTone);
+      draw.polygon(`0,478 600,477 566,524 0,524`).fill(theme.primaryDark).opacity(0.9);
+
+      // Headline texts
       const textGroup = draw.group();
       textGroup
-        .text('দারুননাজাত মাদ্রাসা')
-        .font({ family: 'Noto Serif Bengali, serif', size: 32, weight: 'bold', anchor: 'middle' })
-        .fill(goldTone)
-        .center(300, 420);
+        .text(poster.madrasahName)
+        .font({ family: 'Noto Serif Bengali, serif', size: 30, weight: 'bold', anchor: 'middle' })
+        .fill(theme.textPrimary)
+        .center(270, 395);
 
       textGroup
-        .text('ভর্তি চলছে — ২০২৬')
-        .font({ family: 'Hind Siliguri, sans-serif', size: 20, weight: 'bold', anchor: 'middle' })
-        .fill('#FEF08A')
-        .center(300, 465);
+        .text(`${poster.admissionTitle} — ${poster.admissionSession}`)
+        .font({ family: 'Hind Siliguri, sans-serif', size: 18, weight: 'bold', anchor: 'middle' })
+        .fill(accentTone)
+        .center(270, 435);
 
-      textGroup
-        .text('স্থানঃ সারুলিয়া, ডেমরা ঢাকা • ০১৭৭৬২৮৯৮০১')
-        .font({ family: 'Hind Siliguri, sans-serif', size: 14, anchor: 'middle' })
-        .fill('#A7F3D0')
-        .center(300, 510);
+      // Accent underline bar with angled edge
+      draw.polygon(`200,448 340,448 330,458 200,458`).fill(accentTone);
 
       const generatedMarkup = draw.svg();
       setSvgOutputCode(generatedMarkup);
     }
-  }, [archApexY, archStrokeWidth, starPoints, starSize, goldTone, showFullPosterSvg, poster]);
+  }, [diagSlope, layerGap, ringSize, dotCols, accentTone, showFullPosterSvg, poster, theme]);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(svgOutputCode);
@@ -126,7 +130,7 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
     link.href = url;
     link.download = showFullPosterSvg
       ? 'darunnajat-madrasah-full-poster.svg'
-      : 'darunnajat-islamic-vector-motif.svg';
+      : 'darunnajat-modern-shape-motif.svg';
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -141,7 +145,7 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
             <span>SVG.js ভেক্টর স্টুডিও</span>
           </div>
           <p className="text-xs text-slate-400">
-            গাণিতিক ভেক্টর জেনারেটর — মেহরাব খিলান, জ্যামিতিক নকশা ও পোস্টার ভেক্টর তৈরি।
+            গাণিতিক ভেক্টর জেনারেটর — ডায়াগোনাল শেপ স্ট্যাক, ডট গ্রিড, রিং ব্যাজ ও সম্পূর্ণ পোস্টার ভেক্টর।
           </p>
         </div>
 
@@ -165,7 +169,7 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            প্যারামেট্রিক মেহরাব
+            প্যারামেট্রিক শেপ
           </button>
         </div>
 
@@ -174,89 +178,89 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
           <div className="space-y-4 pt-2 border-t border-slate-800">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
               <Sliders className="w-3.5 h-3.5" />
-              <span>মেহরাব ও স্টার প্যারামিটার</span>
+              <span>শেপ প্যারামিটার</span>
             </div>
 
-            {/* Arch Apex Height */}
+            {/* Diagonal slope */}
             <div>
               <div className="flex justify-between text-xs text-slate-300 mb-1">
-                <span>খিলান চূড়ার উচ্চতা</span>
-                <span className="font-mono">{archApexY}px</span>
+                <span>তির্যক কাটের ঢাল</span>
+                <span className="font-mono">{diagSlope}px</span>
               </div>
               <input
                 type="range"
-                min="30"
-                max="140"
-                value={archApexY}
-                onChange={(e) => setArchApexY(Number(e.target.value))}
+                min="10"
+                max="180"
+                value={diagSlope}
+                onChange={(e) => setDiagSlope(Number(e.target.value))}
                 className="w-full accent-amber-500"
               />
             </div>
 
-            {/* Arch Stroke Width */}
+            {/* Layer gap */}
             <div>
               <div className="flex justify-between text-xs text-slate-300 mb-1">
-                <span>গোল্ডেন ফ্রেমের পুরুত্ব</span>
-                <span className="font-mono">{archStrokeWidth}px</span>
+                <span>লেয়ারের ফাঁক</span>
+                <span className="font-mono">{layerGap}px</span>
               </div>
               <input
                 type="range"
-                min="1"
-                max="8"
-                value={archStrokeWidth}
-                onChange={(e) => setArchStrokeWidth(Number(e.target.value))}
+                min="4"
+                max="44"
+                value={layerGap}
+                onChange={(e) => setLayerGap(Number(e.target.value))}
                 className="w-full accent-amber-500"
               />
             </div>
 
-            {/* Star Points */}
+            {/* Ring badge size */}
             <div>
               <div className="flex justify-between text-xs text-slate-300 mb-1">
-                <span>ইসলামিক স্টারের কোণ সংখ্যা</span>
-                <span className="font-mono">{starPoints}-পয়েন্ট</span>
+                <span>রিং ব্যাজের আকার</span>
+                <span className="font-mono">{ringSize}px</span>
               </div>
               <input
                 type="range"
-                min="5"
-                max="16"
+                min="34"
+                max="100"
+                value={ringSize}
+                onChange={(e) => setRingSize(Number(e.target.value))}
+                className="w-full accent-amber-500"
+              />
+            </div>
+
+            {/* Dot grid density */}
+            <div>
+              <div className="flex justify-between text-xs text-slate-300 mb-1">
+                <span>ডট গ্রিডের ঘনত্ব</span>
+                <span className="font-mono">{dotCols} কলাম</span>
+              </div>
+              <input
+                type="range"
+                min="4"
+                max="12"
                 step="1"
-                value={starPoints}
-                onChange={(e) => setStarPoints(Number(e.target.value))}
+                value={dotCols}
+                onChange={(e) => setDotCols(Number(e.target.value))}
                 className="w-full accent-amber-500"
               />
             </div>
 
-            {/* Star Size */}
+            {/* Accent Tone Picker */}
             <div>
-              <div className="flex justify-between text-xs text-slate-300 mb-1">
-                <span>স্টার আকার</span>
-                <span className="font-mono">{starSize}px</span>
-              </div>
-              <input
-                type="range"
-                min="30"
-                max="110"
-                value={starSize}
-                onChange={(e) => setStarSize(Number(e.target.value))}
-                className="w-full accent-amber-500"
-              />
-            </div>
-
-            {/* Gold Tone Picker */}
-            <div>
-              <label className="block text-xs text-slate-300 mb-1.5">স্বর্ণালী আভা (Gold Tone)</label>
+              <label className="block text-xs text-slate-300 mb-1.5">অ্যাকসেন্ট রং (Accent Tone)</label>
               <div className="flex gap-2">
                 {[
-                  { name: '24K Gold', hex: '#F59E0B' },
-                  { name: 'Radiant Yellow', hex: '#FDE047' },
-                  { name: 'Amber Bronze', hex: '#D97706' },
-                  { name: 'Rose Gold', hex: '#F472B6' },
+                  { name: 'Amber', hex: '#F59E0B' },
+                  { name: 'Orange', hex: '#F97316' },
+                  { name: 'Gold', hex: '#EAB308' },
+                  { name: 'Teal', hex: '#14B8A6' },
                 ].map((item) => (
                   <button
                     key={item.hex}
-                    onClick={() => setGoldTone(item.hex)}
+                    onClick={() => setAccentTone(item.hex)}
                     className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
-                      goldTone === item.hex ? 'border-white scale-110' : 'border-transparent'
+                      accentTone === item.hex ? 'border-white scale-110' : 'border-transparent'
                     }`}
                     style={{ backgroundColor: item.hex }}
                     title={item.name}
@@ -274,7 +278,7 @@ export const SvgVectorStudio: React.FC<SvgVectorStudioProps> = ({ poster }) => {
             className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors border border-slate-700"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? 'কোড কপি হয়েছে!' : 'SVG কোড কপি করুন'}</span>
+            <span>{copied ? 'কোড কপি হয়েছে!' : 'SVG কোড কপি করুন'}</span>
           </button>
 
           <button

@@ -3,7 +3,10 @@
 /* Bundled Bengali Font Families */
 @import "@fontsource/noto-serif-bengali/index.css";
 @import "@fontsource/noto-serif-bengali/700.css";
+@import "@fontsource/noto-serif-bengali/800.css";
+@import "@fontsource/noto-serif-bengali/900.css";
 @import "@fontsource/hind-siliguri/index.css";
+@import "@fontsource/hind-siliguri/500.css";
 @import "@fontsource/hind-siliguri/600.css";
 @import "@fontsource/hind-siliguri/700.css";
 @import "@fontsource/noto-sans-bengali/index.css";

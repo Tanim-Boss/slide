@@ -1,14 +1,46 @@
 import { PosterData } from '../types/poster';
 import { THEMES } from '../data/themes';
 
+/** Escape user text for safe XML embedding */
+const esc = (s: string): string =>
+  String(posterSafe(s))
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+const posterSafe = (s: string): string => (s ?? '');
+
+const BENGALI_NUMERALS = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '১০'];
+
+/** Dotted grid cluster as raw SVG circles */
+function dotGrid(
+  x: number,
+  y: number,
+  cols: number,
+  rows: number,
+  gap: number,
+  r: number,
+  color: string,
+  opacity: number
+): string {
+  let out = '';
+  for (let rr = 0; rr < rows; rr++) {
+    for (let cc = 0; cc < cols; cc++) {
+      out += `<circle cx="${(x + cc * gap).toFixed(1)}" cy="${(y + rr * gap).toFixed(1)}" r="${r}" fill="${color}" opacity="${opacity}" />`;
+    }
+  }
+  return out;
+}
+
 /**
- * Generates pure standalone SVG string for Darunnajat Madrasah Poster
- * Compatible with SVG.js, Fabric.js import, Sharp 300 DPI rasterization, and direct SVG download.
+ * Generates a pure standalone SVG string for the Darunnajat Madrasah poster —
+ * modern corporate shape-based layout (layered diagonal header, accent ribbon,
+ * feature cards, angular footer). Compatible with SVG.js, Fabric.js import,
+ * Sharp 300 DPI rasterization, and direct SVG download.
  */
 export function generatePosterSvg(poster: PosterData): string {
   const theme = THEMES[poster.themeId] || THEMES['royal-emerald'];
-  
-  // Dimensions based on aspect ratio
+
+  // Canvas dimensions based on aspect ratio
   let width = 1240;
   let height = 1754; // A4 ratio default
   if (poster.aspectRatio === 'square-1-1') {
@@ -22,300 +54,275 @@ export function generatePosterSvg(poster: PosterData): string {
     height = 1080;
   }
 
-  // Colors based on theme
-  const isIvory = poster.themeId === 'ivory-cream';
-  const bg1 = isIvory ? '#fdfbf7' : theme.id === 'sapphire-navy' ? '#1e3a8a' : theme.id === 'burgundy-ruby' ? '#831843' : theme.id === 'midnight-onyx' ? '#1c1917' : '#064e3b';
-  const bg2 = isIvory ? '#eee5d3' : theme.id === 'sapphire-navy' ? '#030712' : theme.id === 'burgundy-ruby' ? '#270505' : theme.id === 'midnight-onyx' ? '#050505' : '#011812';
-  const goldPrimary = theme.accentGold;
-  const textColor = isIvory ? '#064e3b' : '#ffffff';
-  const subtextColor = isIvory ? '#374151' : theme.textSecondary;
+  const W = width;
+  const H = height;
+  const M = 90; // side margin
+  const S = Math.min(W / 1240, H / 1754); // uniform scale for type & small elements
+  const F = (n: number): number => +(n * S).toFixed(1);
+
+  // ---- Vertical layout anchors ----
+  const ry = H / 1754; // vertical layout scale
+  const headerH = Math.round(330 * ry);
+  const heroTop = headerH + Math.round(78 * ry);
+  const ribbonY = heroTop + Math.round(352 * ry);
+  const featHeadY = ribbonY + Math.round(128 * ry);
+  const cardsTop = featHeadY + Math.round(104 * ry);
+  const cardH = Math.max(64, Math.round(96 * S));
+  const cardGap = Math.round(20 * S);
+  const footerH = Math.round(300 * ry);
+  const footTop = H - footerH;
+  const wedgeH = Math.round(28 * ry);
+
+  const headlineWords = poster.admissionTitle.trim().split(/\s+/).filter(Boolean);
+
+  // ---- Header diagonal polygons ----
+  const hh = headerH;
+  const headerShapes = poster.ornaments.showHeaderShapes
+    ? `
+    <polygon points="0,0 ${W},0 ${W},${(hh * 0.74).toFixed(0)} 0,${(hh * 0.97).toFixed(0)}" fill="${theme.accent}" />
+    <polygon points="0,0 ${W},0 ${W},${(hh * 0.705).toFixed(0)} 0,${(hh * 0.92).toFixed(0)}" fill="${theme.primaryDark}" />
+    <polygon points="0,0 ${W},0 ${W},${(hh * 0.67).toFixed(0)} 0,${(hh * 0.87).toFixed(0)}" fill="${theme.primary}" />
+    <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="${Math.max(1.5, 2 * S)}">
+      <line x1="${(W * 0.58).toFixed(0)}" y1="0" x2="${(W * 0.86).toFixed(0)}" y2="${(hh * 0.58).toFixed(0)}" />
+      <line x1="${(W * 0.66).toFixed(0)}" y1="0" x2="${(W * 0.94).toFixed(0)}" y2="${(hh * 0.58).toFixed(0)}" />
+      <line x1="${(W * 0.74).toFixed(0)}" y1="0" x2="${W}" y2="${(hh * 0.53).toFixed(0)}" />
+    </g>`
+    : `<rect x="0" y="0" width="${W}" height="${hh}" fill="${theme.primary}" />`;
+
+  // ---- Hero headline lines ----
+  const headlineSvg =
+    headlineWords.length <= 1
+      ? `<text x="${M}" y="${heroTop + F(104)}" font-family="'Noto Serif Bengali','Tiro Bangla',serif" font-size="${F(92)}" font-weight="900" fill="${theme.accent}">${esc(headlineWords[0] || poster.admissionTitle)}</text>`
+      : `${headlineWords
+          .map((word, i) => {
+            const isLast = i === headlineWords.length - 1;
+            const size = isLast ? F(104) : F(84);
+            const y = heroTop + F(isLast ? 208 : 104);
+            const fill = isLast ? theme.accent : theme.textPrimary;
+            return `<text x="${M}" y="${y}" font-family="'Noto Serif Bengali','Tiro Bangla',serif" font-size="${size}" font-weight="900" fill="${fill}">${esc(word)}</text>`;
+          })
+          .join('\n')}`;
+
+  // ---- Info chips (date + badge text) ----
+  const chipY = heroTop + F(268);
+  const chipH = F(58);
+  const chipFont = F(23);
+  const chip1Text = poster.admissionDate;
+  const chip2Text = poster.customBadgeText;
+  const chip1W = Math.round(chip1Text.length * 19 * S + 120 * S);
+  const chip2W = Math.round(chip2Text.length * 19 * S + 120 * S);
+  const chip2X = M + chip1W + Math.round(20 * S);
+
+  const chipsSvg = `
+    <!-- chip 1: admission date -->
+    <rect x="${M}" y="${chipY}" width="${chip1W}" height="${chipH}" rx="${chipH / 2}" fill="${theme.primarySoft}" />
+    <g transform="translate(${M + Math.round(34 * S)}, ${chipY + Math.round(chipH / 2)}) scale(${S.toFixed(3)})" stroke="${theme.primary}" stroke-width="3" fill="none" stroke-linecap="round">
+      <rect x="-13" y="-11" width="26" height="24" rx="4" />
+      <line x1="-13" y1="-3" x2="13" y2="-3" />
+      <line x1="-6" y1="-16" x2="-6" y2="-7" />
+      <line x1="6" y1="-16" x2="6" y2="-7" />
+    </g>
+    <text x="${M + Math.round(66 * S)}" y="${chipY + chipH / 2}" dominant-baseline="central" font-family="'Hind Siliguri','Noto Sans Bengali',sans-serif" font-size="${chipFont}" font-weight="700" fill="${theme.textPrimary}">${esc(chip1Text)}</text>
+    <!-- chip 2: quality badge -->
+    <rect x="${chip2X}" y="${chipY}" width="${chip2W}" height="${chipH}" rx="${chipH / 2}" fill="${theme.primarySoft}" />
+    <g transform="translate(${chip2X + Math.round(34 * S)}, ${chipY + Math.round(chipH / 2)})" stroke="${theme.primary}" stroke-width="${Math.max(2, 3 * S)}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="0" cy="0" r="13" />
+      <path d="M -6 0 L -1.5 5 L 7 -5" />
+    </g>
+    <text x="${chip2X + Math.round(66 * S)}" y="${chipY + chipH / 2}" dominant-baseline="central" font-family="'Hind Siliguri','Noto Sans Bengali',sans-serif" font-size="${chipFont}" font-weight="700" fill="${theme.textPrimary}">${esc(chip2Text)}</text>`;
+
+  // ---- Ring badge ----
+  const badgeCx = W - M - Math.round(130 * S);
+  const badgeCy = heroTop + F(140);
+  const badgeR = Math.round(102 * S);
+  const ringBadgeSvg = poster.ornaments.showRingBadge
+    ? `
+    <circle cx="${badgeCx}" cy="${badgeCy}" r="${badgeR}" fill="none" stroke="${theme.accent}" stroke-width="${Math.round(14 * S)}" />
+    <circle cx="${badgeCx}" cy="${badgeCy}" r="${badgeR - Math.round(20 * S)}" fill="${theme.primary}" />
+    <text x="${badgeCx}" y="${badgeCy - F(24)}" text-anchor="middle" font-family="'Hind Siliguri',sans-serif" font-size="${F(19)}" font-weight="700" letter-spacing="2" fill="${theme.accent}">আসন সংখ্যা</text>
+    <text x="${badgeCx}" y="${badgeCy + F(18)}" text-anchor="middle" font-family="'Noto Serif Bengali',serif" font-size="${F(42)}" font-weight="900" fill="#ffffff">সীমিত!</text>
+    <text x="${badgeCx}" y="${badgeCy + F(48)}" text-anchor="middle" font-size="${F(12)}" letter-spacing="4" fill="${theme.accent}">●●●</text>`
+    : '';
+
+  // ---- Accent ribbon band ----
+  const ribbonH = F(64);
+  const ribbonSvg = poster.ornaments.showRibbonBand
+    ? `
+    <polygon points="0,${ribbonY + Math.round(8 * S)} ${W},${ribbonY + Math.round(7 * S)} ${W - Math.round(46 * S)},${ribbonY + ribbonH + Math.round(8 * S)} 0,${ribbonY + ribbonH + Math.round(8 * S)}" fill="${theme.primaryDark}" />
+    <polygon points="0,${ribbonY} ${W},${ribbonY} ${W - Math.round(46 * S)},${ribbonY + ribbonH} 0,${ribbonY + ribbonH}" fill="url(#accentGrad)" />
+    <circle cx="${M + Math.round(30 * S)}" cy="${ribbonY + ribbonH / 2}" r="${Math.round(19 * S)}" fill="${theme.textOnAccent}" />
+    <path d="M ${M + Math.round(21 * S)} ${ribbonY + ribbonH / 2} L ${M + Math.round(36 * S)} ${ribbonY + ribbonH / 2} M ${M + Math.round(31 * S)} ${ribbonY + ribbonH / 2 - Math.round(6 * S)} L ${M + Math.round(38 * S)} ${ribbonY + ribbonH / 2} L ${M + Math.round(31 * S)} ${ribbonY + ribbonH / 2 + Math.round(6 * S)}" stroke="${theme.accent}" stroke-width="${Math.max(2, 3.4 * S)}" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="${M + Math.round(64 * S)}" y="${ribbonY + ribbonH / 2}" dominant-baseline="central" font-family="'Hind Siliguri',sans-serif" font-size="${F(25)}" font-weight="700" fill="${theme.textOnAccent}">${esc(poster.urgentNote)}</text>
+    <g stroke="${theme.textOnAccent}" stroke-opacity="0.28" stroke-width="${Math.round(6 * S)}">
+      <line x1="${W - Math.round(150 * S)}" y1="${ribbonY + ribbonH}" x2="${W - Math.round(120 * S)}" y2="${ribbonY}" />
+      <line x1="${W - Math.round(116 * S)}" y1="${ribbonY + ribbonH}" x2="${W - Math.round(86 * S)}" y2="${ribbonY}" />
+      <line x1="${W - Math.round(82 * S)}" y1="${ribbonY + ribbonH}" x2="${W - Math.round(52 * S)}" y2="${ribbonY}" />
+    </g>`
+    : '';
+
+  // ---- Feature cards ----
+  const gap = cardGap;
+  const cardW2 = Math.round((W - 2 * M - gap) / 2);
+  const cardWFull = W - 2 * M;
+
+  const featureCards = poster.features
+    .map((feature, idx) => {
+      const isSpecial = idx === 6;
+      const row = Math.floor(idx / 2);
+      const col = idx % 2;
+      const w = isSpecial ? cardWFull : cardW2;
+      const x = isSpecial ? M : M + col * (cardW2 + gap);
+      const y = cardsTop + row * (cardH + gap);
+      const cy = y + cardH / 2;
+      const numeral = BENGALI_NUMERALS[idx] || String(idx + 1);
+
+      return `
+      <g>
+        <rect x="${x}" y="${y}" width="${w}" height="${cardH}" rx="${Math.round(14 * S)}" fill="${isSpecial ? theme.primarySoft : '#ffffff'}" stroke="${isSpecial ? theme.primary : '#e4e9ef'}" stroke-width="2" />
+        <rect x="${x}" y="${y}" width="${Math.max(5, Math.round(7 * S))}" height="${cardH}" fill="${isSpecial ? theme.accent : theme.primary}" />
+        <rect x="${x + Math.round(22 * S)}" y="${cy - Math.round(21 * S)}" width="${Math.round(42 * S)}" height="${Math.round(42 * S)}" rx="${Math.round(10 * S)}" fill="${isSpecial ? theme.accent : theme.primary}" />
+        <text x="${x + Math.round(43 * S)}" y="${cy}" dominant-baseline="central" text-anchor="middle" font-family="'Noto Serif Bengali',serif" font-size="${F(21)}" font-weight="900" fill="${isSpecial ? theme.textOnAccent : '#ffffff'}">${numeral}</text>
+        <g transform="translate(${x + Math.round(90 * S)}, ${cy})" stroke="${isSpecial ? theme.accentDark : theme.accent}" stroke-width="${Math.max(2, 3 * S)}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="0" cy="0" r="${Math.round(13 * S)}" />
+          <path d="M ${-6 * S} 0 L ${-1.5 * S} ${5 * S} L ${7 * S} ${-5 * S}" />
+        </g>
+        <text x="${x + Math.round(122 * S)}" y="${cy}" dominant-baseline="central" font-family="'Hind Siliguri','Noto Sans Bengali',sans-serif" font-size="${F(24)}" font-weight="700" fill="${theme.textPrimary}">${esc(feature)}</text>
+      </g>`;
+    })
+    .join('\n');
+
+  // ---- Footer ----
+  const labelY = footTop + Math.round(58 * S);
+  const locY = labelY + Math.round(50 * S);
+  const phoneY = labelY + Math.round(100 * S);
+  const phoneChipH = Math.round(56 * S);
+  const phoneChipW = Math.round(330 * S);
+
+  const footerWedgeSvg = poster.ornaments.showFooterShapes
+    ? `
+    <polygon points="0,${footTop} ${W},${footTop - wedgeH} ${W},${footTop}" fill="${theme.accent}" />
+    <polygon points="0,${footTop} ${W},${footTop - wedgeH + Math.round(9 * S)} ${W},${footTop}" fill="${theme.primary}" />`
+    : '';
+
+  const phonesSvg = poster.phones
+    .map((phone, i) => {
+      const x = M + i * (phoneChipW + Math.round(20 * S));
+      return `
+      <g>
+        <rect x="${x}" y="${phoneY}" width="${phoneChipW}" height="${phoneChipH}" rx="${Math.round(12 * S)}" fill="url(#accentGrad)" />
+        <g transform="translate(${x + Math.round(32 * S)}, ${phoneY + Math.round(phoneChipH / 2 - 12 * S)}) scale(${(0.9 * S).toFixed(3)})">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" fill="${theme.textOnAccent}" />
+        </g>
+        <text x="${x + Math.round(64 * S)}" y="${phoneY + phoneChipH / 2}" dominant-baseline="central" font-family="'Hind Siliguri',sans-serif" font-size="${F(28)}" font-weight="900" letter-spacing="1" fill="${theme.textOnAccent}">${esc(phone)}</text>
+      </g>`;
+    })
+    .join('\n');
+
+  const qrSize = Math.round(120 * S);
+  const qrX = W - M - qrSize - Math.round(24 * S);
+  const qrCardH = qrSize + Math.round(46 * S);
+  const qrY = footTop + Math.round(34 * S);
+  const qrSvg = poster.ornaments.showQrCode
+    ? `
+    <rect x="${qrX}" y="${qrY}" width="${qrSize + Math.round(24 * S)}" height="${qrCardH}" rx="${Math.round(12 * S)}" fill="#ffffff" />
+    <g transform="translate(${qrX + Math.round(12 * S)}, ${qrY + Math.round(10 * S)}) scale(${(qrSize / 100).toFixed(3)})" fill="${theme.primary}">
+      <rect x="5" y="5" width="28" height="28" rx="4" fill="none" stroke="${theme.primary}" stroke-width="5" />
+      <rect x="13" y="13" width="12" height="12" rx="2" />
+      <rect x="67" y="5" width="28" height="28" rx="4" fill="none" stroke="${theme.primary}" stroke-width="5" />
+      <rect x="75" y="13" width="12" height="12" rx="2" />
+      <rect x="5" y="67" width="28" height="28" rx="4" fill="none" stroke="${theme.primary}" stroke-width="5" />
+      <rect x="13" y="75" width="12" height="12" rx="2" />
+      <rect x="40" y="8" width="6" height="6" />
+      <rect x="50" y="8" width="8" height="6" />
+      <rect x="42" y="20" width="8" height="8" />
+      <rect x="54" y="24" width="6" height="6" />
+      <rect x="8" y="42" width="6" height="8" />
+      <rect x="20" y="40" width="10" height="6" />
+      <rect x="36" y="36" width="28" height="28" rx="3" fill="#ffffff" stroke="${theme.accent}" stroke-width="2" />
+      <text x="50" y="55" text-anchor="middle" font-size="13" font-weight="900" fill="${theme.accent}" font-family="sans-serif">DNM</text>
+      <rect x="70" y="42" width="8" height="6" />
+      <rect x="84" y="45" width="8" height="8" />
+      <rect x="42" y="70" width="8" height="8" />
+      <rect x="56" y="76" width="6" height="14" />
+      <rect x="70" y="70" width="10" height="6" />
+      <rect x="85" y="72" width="6" height="18" />
+      <rect x="42" y="86" width="8" height="6" />
+      <rect x="70" y="84" width="10" height="8" />
+    </g>
+    <text x="${qrX + Math.round((qrSize + 24 * S) / 2)}" y="${qrY + qrCardH - Math.round(16 * S)}" text-anchor="middle" font-family="'Hind Siliguri',sans-serif" font-size="${F(13)}" font-weight="700" fill="${theme.textSecondary}">স্ক্যান করে তথ্য জানুন</text>`
+    : '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
-    <!-- Gradients -->
-    <radialGradient id="bgGrad" cx="50%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="${bg1}" />
-      <stop offset="100%" stop-color="${bg2}" />
-    </radialGradient>
-    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFBEB" />
-      <stop offset="25%" stop-color="#FCD34D" />
-      <stop offset="50%" stop-color="#F59E0B" />
-      <stop offset="75%" stop-color="#D97706" />
-      <stop offset="100%" stop-color="#B45309" />
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${theme.primary}" />
+      <stop offset="100%" stop-color="${theme.primaryDark}" />
     </linearGradient>
-    <linearGradient id="bannerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#92400E" />
-      <stop offset="25%" stop-color="#F59E0B" />
-      <stop offset="50%" stop-color="#FEF08A" />
-      <stop offset="75%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#92400E" />
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="${theme.accent}" />
+      <stop offset="100%" stop-color="${theme.accentDark}" />
     </linearGradient>
-    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${isIvory ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.08)'}" />
-      <stop offset="100%" stop-color="${isIvory ? 'rgba(240,230,210,0.85)' : 'rgba(0,0,0,0.45)'}" />
-    </linearGradient>
-    <radialGradient id="sealGrad" cx="35%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#FEF08A" />
-      <stop offset="40%" stop-color="#F59E0B" />
-      <stop offset="85%" stop-color="#B45309" />
-      <stop offset="100%" stop-color="#78350F" />
-    </radialGradient>
-
-    <!-- Filters -->
-    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#F59E0B" flood-opacity="0.45" />
-    </filter>
-    <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5" />
-    </filter>
-
-    <!-- Islamic Girih Star Pattern -->
-    <pattern id="girihTile" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-      <g stroke="${goldPrimary}" stroke-width="1" fill="none" opacity="0.12">
-        <polygon points="40,16 46,34 64,40 46,46 40,64 34,46 16,40 34,34" />
-        <rect x="25" y="25" width="30" height="30" transform="rotate(45 40 40)" />
-        <line x1="0" y1="0" x2="25" y2="25" />
-        <line x1="80" y1="0" x2="55" y2="25" />
-        <line x1="0" y1="80" x2="25" y2="55" />
-        <line x1="80" y1="80" x2="55" y2="55" />
-      </g>
-    </pattern>
   </defs>
 
-  <!-- Background Rect -->
-  <rect width="${width}" height="${height}" fill="url(#bgGrad)" />
+  <!-- Page background -->
+  <rect width="${W}" height="${H}" fill="${theme.pageBg}" />
 
-  <!-- Background Islamic Pattern Overlay -->
-  ${poster.ornaments.showGeometricBackground ? `<rect width="${width}" height="${height}" fill="url(#girihTile)" />` : ''}
+  <!-- ===== Header: layered diagonal shape stack ===== -->
+  ${headerShapes}
+  <circle cx="${W - Math.round(60 * S)}" cy="${Math.round(10 * S)}" r="${Math.round(150 * S)}" fill="${theme.accent}" opacity="0.10" />
+  ${poster.ornaments.showDotPatterns ? dotGrid(W - M - Math.round(120 * S), Math.round(52 * S), 6, 4, Math.round(24 * S), Math.max(2.5, 4 * S), theme.accent, 0.95) : ''}
 
-  <!-- Grand Mehrab Border & Outer Foil Framing -->
-  ${
-    poster.ornaments.showFoilBorder
-      ? `
-    <!-- Outer Golden Borders -->
-    <rect x="28" y="28" width="${width - 56}" height="${height - 56}" rx="12" fill="none" stroke="url(#goldGradient)" stroke-width="4" filter="url(#goldGlow)" />
-    <rect x="42" y="42" width="${width - 84}" height="${height - 84}" rx="8" fill="none" stroke="url(#goldGradient)" stroke-width="1.5" stroke-dasharray="8 6" opacity="0.8" />
-    
-    <!-- Corner Decorative Rosettes -->
-    <circle cx="28" cy="28" r="8" fill="url(#goldGradient)" />
-    <circle cx="${width - 28}" cy="28" r="8" fill="url(#goldGradient)" />
-    <circle cx="28" cy="${height - 28}" r="8" fill="url(#goldGradient)" />
-    <circle cx="${width - 28}" cy="${height - 28}" r="8" fill="url(#goldGradient)" />
-  `
-      : ''
-  }
+  <!-- Brand row: ring logo + name -->
+  <circle cx="${M + Math.round(66 * S)}" cy="${Math.round(headerH * 0.36)}" r="${Math.round(58 * S)}" fill="${theme.primaryDark}" stroke="${theme.accent}" stroke-width="${Math.max(5, Math.round(8 * S))}" />
+  <text x="${M + Math.round(66 * S)}" y="${Math.round(headerH * 0.36 + 17 * S)}" text-anchor="middle" font-family="'Noto Serif Bengali',serif" font-size="${F(48)}" font-weight="900" fill="${theme.accent}">দা</text>
+  <text x="${M + Math.round(150 * S)}" y="${Math.round(headerH * 0.30)}" font-family="'Noto Serif Bengali','Tiro Bangla',serif" font-size="${F(56)}" font-weight="900" fill="${theme.textOnPrimary}">${esc(poster.madrasahName)}</text>
+  <text x="${M + Math.round(150 * S)}" y="${Math.round(headerH * 0.30 + 46 * S)}" font-family="'Hind Siliguri','Noto Sans Bengali',sans-serif" font-size="${F(20)}" font-weight="500" fill="#ffffff" opacity="0.85">${esc(poster.subTitle)}</text>
 
-  <!-- Mosque Skyline Silhouette at top -->
-  <g fill="${goldPrimary}" opacity="0.18">
-    <path d="M ${width / 2 - 90} 140 C ${width / 2 - 90} 70, ${width / 2 - 45} 40, ${width / 2} 24 C ${width / 2 + 45} 40, ${width / 2 + 90} 70, ${width / 2 + 90} 140 Z" />
-    <rect x="${width / 2 - 250}" y="60" width="14" height="80" />
-    <polygon points="${width / 2 - 253},60 ${width / 2 - 243},35 ${width / 2 - 233},60" />
-    <rect x="${width / 2 + 236}" y="60" width="14" height="80" />
-    <polygon points="${width / 2 + 233},60 ${width / 2 + 243},35 ${width / 2 + 253},60" />
+  <!-- ===== Hero: kicker + stacked headline ===== -->
+  <rect x="${M}" y="${heroTop}" width="${Math.round(64 * S)}" height="${Math.max(7, Math.round(10 * S))}" fill="${theme.accent}" />
+  <text x="${M + Math.round(80 * S)}" y="${heroTop + Math.round(5 * S)}" dominant-baseline="central" font-family="'Hind Siliguri',sans-serif" font-size="${F(21)}" font-weight="700" letter-spacing="1.5" fill="${theme.textSecondary}">${esc(poster.admissionSession)}</text>
+
+  ${headlineSvg}
+
+  <!-- angled accent underline -->
+  <polygon points="${M},${heroTop + Math.round(252 * S)} ${M + Math.round(180 * S)},${heroTop + Math.round(252 * S)} ${M + Math.round(164 * S)},${heroTop + Math.round(252 * S + 15 * S)} ${M},${heroTop + Math.round(252 * S + 15 * S)}" fill="${theme.accent}" />
+
+  ${chipsSvg}
+
+  ${ringBadgeSvg}
+
+  <!-- ===== Accent ribbon band ===== -->
+  ${ribbonSvg}
+
+  <!-- ===== Features section ===== -->
+  <polygon points="${M},${featHeadY} ${M + Math.round(12 * S)},${featHeadY} ${M + Math.round(12 * S)},${featHeadY + Math.round(54 * S)} ${M},${featHeadY + Math.round(45 * S)}" fill="${theme.accent}" />
+  <text x="${M + Math.round(30 * S)}" y="${featHeadY + Math.round(38 * S)}" dominant-baseline="central" font-family="'Noto Serif Bengali',serif" font-size="${F(40)}" font-weight="900" fill="${theme.textPrimary}">${esc(poster.featuresTitle)}</text>
+  ${poster.ornaments.showDotPatterns ? dotGrid(W - M - Math.round(180 * S), featHeadY + Math.round(4 * S), 8, 3, Math.round(21 * S), Math.max(2, 3.4 * S), theme.primary, 0.3) : ''}
+
+  ${featureCards}
+
+  <!-- ===== Footer: angular wedge + dark contact bar ===== -->
+  ${footerWedgeSvg}
+  <rect x="0" y="${footTop}" width="${W}" height="${footerH}" fill="url(#primaryGrad)" />
+
+  <rect x="${M}" y="${labelY - Math.round(13 * S)}" width="${Math.round(36 * S)}" height="${Math.max(4, Math.round(6 * S))}" fill="${theme.accent}" />
+  <text x="${M + Math.round(48 * S)}" y="${labelY - Math.round(10 * S)}" dominant-baseline="central" font-family="'Hind Siliguri',sans-serif" font-size="${F(20)}" font-weight="700" letter-spacing="3" fill="${theme.accent}">যোগাযোগ করুন</text>
+
+  <g transform="translate(${M + Math.round(16 * S)}, ${locY})" fill="${theme.accent}">
+    <circle cx="0" cy="${-4 * S}" r="${Math.max(5, Math.round(8 * S))}" />
+    <polygon points="${-8 * S},${1 * S} ${8 * S},${1 * S} 0,${16 * S}" />
   </g>
+  <text x="${M + Math.round(44 * S)}" y="${locY}" dominant-baseline="central" font-family="'Hind Siliguri','Noto Sans Bengali',sans-serif" font-size="${F(23)}" font-weight="600" fill="${theme.textOnPrimary}">${esc(poster.location)}</text>
 
-  <!-- Top Arabic Calligraphy Bismillah -->
-  ${
-    poster.ornaments.showBismillah
-      ? `
-    <text x="${width / 2}" y="105" text-anchor="middle" font-family="'Amiri', 'Noto Naskh Arabic', serif" font-size="36" font-weight="bold" fill="url(#goldGradient)" filter="url(#goldGlow)">
-      ${poster.arabicHeader}
-    </text>
-  `
-      : ''
-  }
+  ${phonesSvg}
 
-  <!-- Rabbi Zidni Ilma Sub-header -->
-  ${
-    poster.ornaments.showRabbiZidni
-      ? `
-    <g transform="translate(${width / 2}, 145)">
-      <line x1="-180" y1="0" x2="-70" y2="0" stroke="url(#goldGradient)" stroke-width="1.5" />
-      <text x="0" y="4" text-anchor="middle" font-family="'Amiri', serif" font-size="20" fill="#FEF08A" font-weight="bold">
-        ${poster.arabicSubHeader}
-      </text>
-      <line x1="70" y1="0" x2="180" y2="0" stroke="url(#goldGradient)" stroke-width="1.5" />
-    </g>
-  `
-      : ''
-  }
+  ${qrSvg}
 
-  <!-- Main Madrasah Name Header -->
-  <g transform="translate(${width / 2}, 235)" filter="url(#goldGlow)">
-    <text x="0" y="0" text-anchor="middle" font-family="'Noto Serif Bengali', 'Tiro Bangla', serif" font-size="68" font-weight="900" fill="url(#goldGradient)" letter-spacing="1.5">
-      ${poster.madrasahName}
-    </text>
-    <!-- Subtitle -->
-    <text x="0" y="45" text-anchor="middle" font-family="'Hind Siliguri', 'Noto Sans Bengali', sans-serif" font-size="21" font-weight="600" fill="${subtextColor}" opacity="0.95">
-      ${poster.subTitle}
-    </text>
-  </g>
+  <text x="${W / 2}" y="${footTop + footerH - Math.round(30 * S)}" text-anchor="middle" font-family="'Hind Siliguri',sans-serif" font-size="${F(15)}" font-weight="500" fill="#ffffff" opacity="0.65">${esc(poster.madrasahName)} — মানসম্মত শিক্ষা ও আদর্শ পরিবেশের প্রতিশ্রুতি</text>
 
-  <!-- Golden Divider with Islamic Star Ornament -->
-  <g transform="translate(${width / 2}, 310)">
-    <line x1="-320" y1="0" x2="-35" y2="0" stroke="url(#goldGradient)" stroke-width="2" />
-    <circle cx="0" cy="0" r="10" fill="url(#goldGradient)" />
-    <polygon points="0,-7 2,-2 7,0 2,2 0,7 -2,2 -7,0 -2,-2" fill="${bg1}" />
-    <line x1="35" y1="0" x2="320" y2="0" stroke="url(#goldGradient)" stroke-width="2" />
-  </g>
-
-  <!-- Admission Open Ribbon Badge & Highlight Banner -->
-  <g transform="translate(${width / 2}, 395)">
-    <!-- Main Admission Box -->
-    <rect x="-380" y="-45" width="760" height="90" rx="45" fill="url(#bannerGrad)" stroke="#FFFFFF" stroke-width="2.5" filter="url(#shadowFilter)" />
-    <rect x="-372" y="-37" width="744" height="74" rx="37" fill="none" stroke="#78350F" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.6" />
-
-    <!-- Text inside Ribbon -->
-    <text x="-40" y="12" text-anchor="middle" font-family="'Noto Serif Bengali', serif" font-size="44" font-weight="900" fill="#451A03" letter-spacing="2">
-      ★ ${poster.admissionTitle} ★
-    </text>
-
-    <!-- Side Badge Rosette -->
-    ${
-      poster.ornaments.showGoldBadge
-        ? `
-      <g transform="translate(260, 0)">
-        <circle cx="0" cy="0" r="50" fill="url(#sealGrad)" stroke="#FFFBEB" stroke-width="3" filter="url(#goldGlow)" />
-        <circle cx="0" cy="0" r="42" fill="none" stroke="#78350F" stroke-width="1" stroke-dasharray="3 3" />
-        <text x="0" y="-8" text-anchor="middle" font-family="'Hind Siliguri', sans-serif" font-size="13" font-weight="bold" fill="#451A03">
-          ${poster.admissionSession}
-        </text>
-        <text x="0" y="14" text-anchor="middle" font-family="'Noto Serif Bengali', sans-serif" font-size="16" font-weight="900" fill="#451A03">
-          ১০০% মানসম্মত
-        </text>
-        <text x="0" y="30" text-anchor="middle" font-size="12" fill="#78350F">
-          ✦ ✦ ✦
-        </text>
-      </g>
-    `
-        : ''
-    }
-  </g>
-
-  <!-- Admission Start Date Pill Highlight -->
-  <g transform="translate(${width / 2}, 485)">
-    <rect x="-260" y="-22" width="520" height="44" rx="22" fill="rgba(245, 158, 11, 0.2)" stroke="url(#goldGradient)" stroke-width="2" />
-    <text x="0" y="7" text-anchor="middle" font-family="'Hind Siliguri', 'Noto Sans Bengali', sans-serif" font-size="22" font-weight="700" fill="#FEF08A">
-      📅 ${poster.admissionDate}
-    </text>
-  </g>
-
-  <!-- Section Header: আমাদের বৈশিষ্ট্যসমূহ -->
-  <g transform="translate(${width / 2}, 570)">
-    <!-- Header background card -->
-    <path d="M -220 0 L 220 0 L 200 42 L -200 42 Z" fill="url(#goldGradient)" filter="url(#shadowFilter)" />
-    <text x="0" y="28" text-anchor="middle" font-family="'Noto Serif Bengali', serif" font-size="25" font-weight="800" fill="#451A03" letter-spacing="1">
-      ⚜️ ${poster.featuresTitle} ⚜️
-    </text>
-  </g>
-
-  <!-- Features Cards Grid (The 7 Exact User Requirements) -->
-  <g transform="translate(100, 640)">
-    ${poster.features
-      .map((feature, idx) => {
-        const isLeftCol = idx % 2 === 0;
-        const row = Math.floor(idx / 2);
-        const colX = isLeftCol ? 0 : 530;
-        const cardWidth = 510;
-        const cardHeight = 92;
-        const rowY = row * 115;
-
-        // Special styling for the 7th item (centered or span)
-        if (idx === 6) {
-          return `
-          <g transform="translate(180, ${row * 115})">
-            <rect width="680" height="${cardHeight}" rx="14" fill="url(#cardGrad)" stroke="url(#goldGradient)" stroke-width="2" filter="url(#shadowFilter)" />
-            <circle cx="48" cy="46" r="26" fill="url(#goldGradient)" />
-            <text x="48" y="53" text-anchor="middle" font-family="'Noto Serif Bengali', serif" font-size="20" font-weight="bold" fill="#451A03">৭</text>
-            <text x="96" y="54" font-family="'Hind Siliguri', 'Noto Serif Bengali', sans-serif" font-size="26" font-weight="700" fill="#FEF08A">
-              ${feature}
-            </text>
-            <circle cx="630" cy="46" r="14" fill="rgba(245, 158, 11, 0.2)" stroke="${goldPrimary}" stroke-width="1.5" />
-            <text x="630" y="51" text-anchor="middle" font-size="14" fill="#FEF08A">★</text>
-          </g>
-        `;
-        }
-
-        const bengaliNums = ['১', '২', '৩', '৪', '৫', '৬', '৭'];
-
-        return `
-        <g transform="translate(${colX}, ${rowY})">
-          <rect width="${cardWidth}" height="${cardHeight}" rx="12" fill="url(#cardGrad)" stroke="url(#goldGradient)" stroke-width="1.6" filter="url(#shadowFilter)" />
-          <!-- Number Seal -->
-          <circle cx="46" cy="46" r="24" fill="url(#goldGradient)" />
-          <text x="46" y="53" text-anchor="middle" font-family="'Noto Serif Bengali', serif" font-size="19" font-weight="bold" fill="#451A03">
-            ${bengaliNums[idx]}
-          </text>
-          <!-- Feature Text -->
-          <text x="90" y="54" font-family="'Hind Siliguri', sans-serif" font-size="24" font-weight="700" fill="${textColor}">
-            ${feature}
-          </text>
-          <!-- Checkmark Icon -->
-          <circle cx="${cardWidth - 36}" cy="46" r="14" fill="rgba(245, 158, 11, 0.25)" stroke="${goldPrimary}" stroke-width="1.5" />
-          <path d="M ${cardWidth - 42} 46 L ${cardWidth - 38} 51 L ${cardWidth - 30} 41" stroke="#FEF08A" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-        </g>
-      `;
-      })
-      .join('\n')}
-  </g>
-
-  <!-- Urgent Note / Seats Limited Ribbon -->
-  <g transform="translate(${width / 2}, 1130)">
-    <rect x="-420" y="-18" width="840" height="38" rx="19" fill="rgba(245, 158, 11, 0.15)" stroke="url(#goldGradient)" stroke-width="1.5" />
-    <text x="0" y="7" text-anchor="middle" font-family="'Hind Siliguri', sans-serif" font-size="19" font-weight="600" fill="#FDE68A">
-      📢 ${poster.urgentNote}
-    </text>
-  </g>
-
-  <!-- Grand Footer Container: Location & Contacts -->
-  <g transform="translate(60, 1190)">
-    <!-- Footer Backplate -->
-    <rect width="${width - 120}" height="480" rx="20" fill="url(#bannerGrad)" opacity="0.12" />
-    <rect width="${width - 120}" height="480" rx="20" fill="none" stroke="url(#goldGradient)" stroke-width="2" />
-
-    <!-- Location Section with Pin -->
-    <g transform="translate(50, 60)">
-      <rect width="${width - 220}" height="76" rx="14" fill="url(#cardGrad)" stroke="url(#goldGradient)" stroke-width="1.5" />
-      <text x="35" y="48" font-size="30">📍</text>
-      <text x="80" y="48" font-family="'Hind Siliguri', 'Noto Sans Bengali', sans-serif" font-size="25" font-weight="700" fill="#FEF08A">
-        ${poster.location}
-      </text>
-    </g>
-
-    <!-- Contact Numbers & QR Code Section -->
-    <g transform="translate(50, 170)">
-      <!-- Contact 1 -->
-      <g transform="translate(0, 0)">
-        <rect width="460" height="84" rx="14" fill="url(#sealGrad)" filter="url(#shadowFilter)" />
-        <text x="45" y="52" font-size="30">📞</text>
-        <text x="95" y="52" font-family="'Hind Siliguri', sans-serif" font-size="28" font-weight="900" fill="#451A03" letter-spacing="1">
-          ${poster.phones[0]}
-        </text>
-      </g>
-
-      <!-- Contact 2 -->
-      <g transform="translate(500, 0)">
-        <rect width="460" height="84" rx="14" fill="url(#sealGrad)" filter="url(#shadowFilter)" />
-        <text x="45" y="52" font-size="30">📱</text>
-        <text x="95" y="52" font-family="'Hind Siliguri', sans-serif" font-size="28" font-weight="900" fill="#451A03" letter-spacing="1">
-          ${poster.phones[1]}
-        </text>
-      </g>
-    </g>
-
-    <!-- Bottom Institutional Stamp & Sign-off -->
-    <g transform="translate(${width / 2 - 60}, 335)">
-      <line x1="-340" y1="0" x2="340" y2="0" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.6" />
-      <text x="0" y="40" text-anchor="middle" font-family="'Noto Serif Bengali', serif" font-size="22" font-weight="700" fill="url(#goldGradient)">
-        দারুননাজাত মাদ্রাসা — একনিষ্ঠ দ্বীনি দীক্ষা ও চারিত্রিক উৎকর্ষতার নির্ভরযোগ্য ঠিকানা
-      </text>
-      <text x="0" y="75" text-anchor="middle" font-family="'Hind Siliguri', sans-serif" font-size="16" font-weight="500" fill="${subtextColor}">
-        সারুলিয়া, ডেমরা, ঢাকা • সকল প্রকার তথ্যের জন্য উপরে প্রদত্ত নম্বরে অবিলম্বে যোগাযোগ করুন
-      </text>
-    </g>
-  </g>
+  <!-- bottom accent strip -->
+  <rect x="0" y="${H - Math.max(8, Math.round(10 * S))}" width="${W}" height="${Math.max(8, Math.round(10 * S))}" fill="url(#accentGrad)" />
 </svg>
 `;
 }

@@ -2,8 +2,6 @@ import { PosterData } from '../types/poster';
 
 export const DEFAULT_POSTER: PosterData = {
   madrasahName: 'দারুননাজাত মাদ্রাসা',
-  arabicHeader: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-  arabicSubHeader: 'رَبِّ زِدْنِي عِلْمًا',
   subTitle: 'ঐতিহ্যবাহী দ্বীনি বিদ্যাপীঠ • আধুনিক ও আদর্শ দ্বীনি শিক্ষার অনন্য সমন্বয়',
   admissionTitle: 'ভর্তি চলছে',
   admissionSession: 'শিক্ষাবর্ষ ২০২৬ - ২০২৭',
@@ -23,16 +21,14 @@ export const DEFAULT_POSTER: PosterData = {
   urgentNote: 'আসন সংখ্যা সীমিত! আজই যোগাযোগ করে আপনার সন্তানের ভর্তি নিশ্চিত করুন।',
   customBadgeText: '১০০% মানসম্মত ও আদর্শ পরিবেশ',
   themeId: 'royal-emerald',
-  layoutId: 'classic-mehrab',
+  layoutId: 'diagonal-split',
   aspectRatio: 'a4',
   ornaments: {
-    showBismillah: true,
-    showRabbiZidni: true,
-    showIslamicArch: true,
-    showCornerFiligrees: true,
-    showGeometricBackground: true,
-    showGoldBadge: true,
+    showHeaderShapes: true,
+    showDotPatterns: true,
+    showRibbonBand: true,
+    showRingBadge: true,
     showQrCode: true,
-    showFoilBorder: true,
+    showFooterShapes: true,
   },
 };
